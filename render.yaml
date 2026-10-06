@@ -28,7 +28,7 @@ services:
       - key: JWT_SECRET_KEY
         value: aa4bb104304ada314a342c7cb6d6aa8c699abb13f9112f3a4b5196a2e5ad8d64
       - key: FRONTEND_URL
-        value: https://antibioticplay-frontend.onrender.com
+        value: https://antibioticplay.ir,https://www.antibioticplay.ir,https://antibioticplay-frontend.onrender.com
     plan: free
     autoDeploy: true
     healthCheckPath: /health
