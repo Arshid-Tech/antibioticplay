@@ -6,7 +6,7 @@ services:
     name: antibioticplay-frontend
     env: node
     buildCommand: cd frontend && npm install && npm run build
-    startCommand: npx serve dist -s
+    startCommand: npx serve dist -s -l $PORT
     envVars:
       - key: VITE_API_BASE_URL
         value: https://antibioticplay-backend.onrender.com/api
@@ -19,7 +19,7 @@ services:
     name: antibioticplay-backend
     env: python
     buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: gunicorn -b 0.0.0.0:$PORT run:app
+    startCommand: cd backend && gunicorn -b 0.0.0.0:$PORT run:app
     envVars:
       - key: MONGO_URI
         value: mongodb+srv://rfarefasadi_db_user:iwbZgf60X6PNPoBF@cluster-antibioticplay.sj62ey3.mongodb.net/antibioticplay?retryWrites=true&w=majority&appName=Cluster-antibioticplay
