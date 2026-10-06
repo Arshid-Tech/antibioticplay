@@ -6,13 +6,13 @@ services:
     name: antibioticplay-frontend
     env: node
     buildCommand: cd frontend && npm install && npm run build
-    startCommand: npx serve dist -s -l $PORT
+    startCommand: cd frontend && npx serve dist -s -l $PORT
     envVars:
       - key: VITE_API_BASE_URL
         value: https://antibioticplay-backend.onrender.com/api
     plan: free
     autoDeploy: true
-    healthCheckPath: /index.html
+    healthCheckPath: /
 
   # Backend Service
   - type: web
