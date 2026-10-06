@@ -1,8 +1,14 @@
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth';
 
+const getApiBaseUrl = () => {
+  // Use the VITE environment variable for production/frontend deployments
+  // Falls back to '/api' for local development or monolithic deployments
+  return import.meta.env.VITE_API_BASE_URL || '/api';
+};
+
 const apiClient = axios.create({
-  baseURL: '/api',
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
