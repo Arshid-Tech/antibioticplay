@@ -64,6 +64,7 @@ def create_app():
         flashcards_bp,
         challenges_bp,
         survey_bp,
+        admin_bp,
     )
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -74,6 +75,7 @@ def create_app():
     app.register_blueprint(flashcards_bp, url_prefix='/api/flashcards')
     app.register_blueprint(challenges_bp, url_prefix='/api/challenges')
     app.register_blueprint(survey_bp, url_prefix='/api/survey')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
 
     @app.route('/health')
     def health_check():

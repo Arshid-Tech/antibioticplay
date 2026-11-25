@@ -19,6 +19,7 @@ import ProfilePage from '../pages/ProfilePage.vue';
 import DailyChallengePage from '../pages/DailyChallengePage.vue';
 import DuelPage from '../pages/DuelPage.vue';
 import SurveyPage from '../pages/SurveyPage.vue';
+import AdminPage from '../pages/AdminPage.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: HomePage },
@@ -39,6 +40,7 @@ const routes = [
   { path: '/daily-challenge', name: 'DailyChallenge', component: DailyChallengePage, meta: { requiresAuth: true } },
   { path: '/duel/:id', name: 'Duel', component: DuelPage, meta: { requiresAuth: true } },
   { path: '/survey', name: 'Survey', component: SurveyPage, meta: { requiresAuth: true } },
+  { path: '/admin', name: 'Admin', component: AdminPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 const router = createRouter({
@@ -57,6 +59,8 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     authStore.returnUrl = to.fullPath;
     next({ name: 'Login' });
+  } else if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
+    next({ name: 'Dashboard' });
   } else {
     next();
   }

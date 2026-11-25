@@ -1,7 +1,8 @@
+import os
 import sys
 from copy import deepcopy
 from app import create_app, db
-from app.models import Unit, Quiz, Question, Badge, Flashcard, normalize_asset_path
+from app.models import User, Unit, Quiz, Question, Badge, Flashcard, normalize_asset_path
 from app.quiz_data import QUIZZES, LEARNING_PATH
 from app.badge_data import BADGES
 from app.flashcard_data import FLASHCARDS
@@ -15,6 +16,35 @@ def _clean_question_payload(q_dict: dict) -> dict:
     if 'image' in cleaned:
         cleaned['image'] = normalize_asset_path(cleaned['image'])
     return cleaned
+
+
+def seed_admin_from_env():
+    """Optionally bootstrap an admin account from ADMIN_USERNAME / ADMIN_EMAIL / ADMIN_PASSWORD env vars."""
+    admin_email = (os.environ.get('ADMIN_EMAIL') or '').strip().lower()
+    admin_username = (os.environ.get('ADMIN_USERNAME') or 'admin').strip()
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+
+    if not admin_email or not admin_password:
+        return
+
+    user = User.find_by_email(admin_email) or User.find_by_username(admin_username)
+    if user:
+        if user.role != 'admin':
+            user.role = 'admin'
+            print(f'👑 Promoted existing user "{user.username}" to admin.')
+        return
+
+    admin_user = User(
+        username=admin_username,
+        email=admin_email,
+        first_name='مدیر',
+        last_name='سیستم',
+        role='admin',
+        avatar_id='fleming',
+    )
+    admin_user.set_password(admin_password)
+    db.session.add(admin_user)
+    print(f'👑 Created admin account "{admin_username}" ({admin_email}).')
 
 
 def seed_flashcards(if_empty: bool = False):
@@ -41,13 +71,11 @@ def seed_flashcards(if_empty: bool = False):
 
 
 def seed_clinical_vignettes_and_micro_lessons():
-    """Ensure micro-lessons are populated and the clinical vignettes stage exists."""
     for quiz_id, lesson_text in MICRO_LESSONS.items():
         q = Quiz.query.filter_by(id=quiz_id).first()
         if q and not q.micro_lesson:
             q.micro_lesson = lesson_text
 
-    # Ensure clinical vignettes stage exists under unit_3
     unit_3 = Unit.query.filter_by(id='unit_3').first()
     if unit_3:
         vignette_quiz = Quiz.query.filter_by(id=CLINICAL_VIGNETTES_QUIZ['id']).first()
@@ -84,12 +112,14 @@ def seed_database(if_empty: bool = False):
     app = create_app()
     with app.app_context():
         db.create_all()
+        seed_admin_from_env()
 
         quizzes_exist = Quiz.query.first() is not None
         flashcards_exist = Flashcard.query.first() is not None
         vignettes_exist = Quiz.query.filter_by(id=CLINICAL_VIGNETTES_QUIZ['id']).first() is not None
 
         if if_empty and quizzes_exist and flashcards_exist and vignettes_exist:
+            db.session.commit()
             print('ℹ️ Database already seeded. Skipping seed (--if-empty).')
             return
 
@@ -174,5 +204,20 @@ def seed_database(if_empty: bool = False):
 
 
 if __name__ == '__main__':
+    if '--make-admin' in sys.argv:
+        idx = sys.argv.index('--make-admin')
+        if idx + 1 < len(sys.argv):
+            target = sys.argv[idx + 1]
+            app = create_app()
+            with app.app_context():
+                u = User.find_by_username(target) or User.find_by_email(target.lower())
+                if u:
+                    u.role = 'admin'
+                    db.session.commit()
+                    print(f'👑 User "{u.username}" is now admin.')
+                else:
+                    print(f'❌ User "{target}" not found.')
+            sys.exit(0)
+
     if_empty_flag = '--if-empty' in sys.argv
     seed_database(if_empty=if_empty_flag)

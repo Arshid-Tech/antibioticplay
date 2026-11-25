@@ -21,6 +21,18 @@ from .challenges import (
     DuelSubmit,
 )
 from .survey import SurveyStatus, SurveySubmit
+from .admin import (
+    AdminAnalytics,
+    AdminExportCSV,
+    AdminQuizCollection,
+    AdminQuizItem,
+    AdminQuestionCollection,
+    AdminQuestionItem,
+    AdminFlashcardCollection,
+    AdminFlashcardItem,
+    AdminUsersList,
+    AdminUserRoleUpdate,
+)
 
 auth_bp = Blueprint('auth_bp', __name__)
 auth_api = Api(auth_bp)
@@ -69,3 +81,16 @@ survey_bp = Blueprint('survey_bp', __name__)
 survey_api = Api(survey_bp)
 survey_api.add_resource(SurveyStatus, '/status')
 survey_api.add_resource(SurveySubmit, '/submit')
+
+admin_bp = Blueprint('admin_bp', __name__)
+admin_api = Api(admin_bp)
+admin_api.add_resource(AdminAnalytics, '/analytics')
+admin_api.add_resource(AdminExportCSV, '/export/<string:export_type>')
+admin_api.add_resource(AdminQuizCollection, '/quizzes')
+admin_api.add_resource(AdminQuizItem, '/quizzes/<string:quiz_id>')
+admin_api.add_resource(AdminQuestionCollection, '/questions')
+admin_api.add_resource(AdminQuestionItem, '/questions/<string:question_id>')
+admin_api.add_resource(AdminFlashcardCollection, '/flashcards')
+admin_api.add_resource(AdminFlashcardItem, '/flashcards/<int:fc_id>')
+admin_api.add_resource(AdminUsersList, '/users')
+admin_api.add_resource(AdminUserRoleUpdate, '/users/<int:user_id>/role')
