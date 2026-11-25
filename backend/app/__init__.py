@@ -54,15 +54,22 @@ def create_app():
             'error': 'authorization_required',
         }), 401
 
-    # Ensure models are imported before creating tables or registering blueprints
     from . import models  # noqa: F401
-    from .routes import auth_bp, quiz_bp, leaderboard_bp, badge_bp, bookmarks_bp
+    from .routes import (
+        auth_bp,
+        quiz_bp,
+        leaderboard_bp,
+        badge_bp,
+        bookmarks_bp,
+        flashcards_bp,
+    )
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(quiz_bp, url_prefix='/api/quizzes')
     app.register_blueprint(leaderboard_bp, url_prefix='/api/leaderboard')
     app.register_blueprint(badge_bp, url_prefix='/api/badges')
     app.register_blueprint(bookmarks_bp, url_prefix='/api/bookmarks')
+    app.register_blueprint(flashcards_bp, url_prefix='/api/flashcards')
 
     @app.route('/health')
     def health_check():

@@ -6,6 +6,13 @@ from .quiz import QuizList, QuizDetail, QuizSubmit
 from .leaderboard import Leaderboard
 from .badge_routes import AllBadges, EarnedBadges
 from .bookmarks import BookmarkToggle, BookmarkList
+from .flashcards import (
+    FlashcardCategories,
+    FlashcardDueList,
+    FlashcardReview,
+    FlashcardBookmarkToggle,
+    FlashcardStats,
+)
 
 auth_bp = Blueprint('auth_bp', __name__)
 auth_api = Api(auth_bp)
@@ -33,3 +40,11 @@ bookmarks_bp = Blueprint('bookmarks_bp', __name__)
 bookmarks_api = Api(bookmarks_bp)
 bookmarks_api.add_resource(BookmarkToggle, '/')
 bookmarks_api.add_resource(BookmarkList, '/list')
+
+flashcards_bp = Blueprint('flashcards_bp', __name__)
+flashcards_api = Api(flashcards_bp)
+flashcards_api.add_resource(FlashcardCategories, '/categories')
+flashcards_api.add_resource(FlashcardDueList, '/due')
+flashcards_api.add_resource(FlashcardReview, '/review')
+flashcards_api.add_resource(FlashcardBookmarkToggle, '/bookmark')
+flashcards_api.add_resource(FlashcardStats, '/stats')

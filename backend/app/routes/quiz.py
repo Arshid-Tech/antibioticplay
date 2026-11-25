@@ -1,9 +1,20 @@
+from datetime import datetime, timezone
 import math
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
-from app.models import User, Unit, Quiz, Question, Badge, UserBadge, UserQuizProgress
+from app.models import (
+    User,
+    Unit,
+    Quiz,
+    Question,
+    Badge,
+    UserBadge,
+    UserQuizProgress,
+    Flashcard,
+    UserFlashcardProgress,
+)
 
 
 class QuizList(Resource):
@@ -206,6 +217,37 @@ class QuizSubmit(Resource):
     def _calculate_level(self, score):
         return math.floor(int(score) / 200) + 1
 
+    def _queue_related_flashcards(self, user_id: int, question_id: str) -> int:
+        """Auto-queue related flashcards into Box 1 (due immediately) on wrong answer."""
+        related_cards = Flashcard.query.filter_by(related_question_id=question_id).all()
+        if not related_cards:
+            return 0
+
+        now = datetime.now(timezone.utc)
+        queued = 0
+        for card in related_cards:
+            prog = UserFlashcardProgress.query.filter_by(
+                user_id=user_id, flashcard_id=card.id
+            ).first()
+            if not prog:
+                prog = UserFlashcardProgress(
+                    user_id=user_id,
+                    flashcard_id=card.id,
+                    box=1,
+                    ease_factor=2.5,
+                    interval_days=1,
+                    repetitions=0,
+                    next_review_at=now,
+                )
+                db.session.add(prog)
+            else:
+                prog.box = 1
+                prog.repetitions = 0
+                prog.interval_days = 1
+                prog.next_review_at = now
+            queued += 1
+        return queued
+
     def _check_and_award_badges(self, user: User):
         newly_earned_badges = []
         existing_badge_ids = set(user.get_earned_badge_ids())
@@ -288,6 +330,10 @@ class QuizSubmit(Resource):
 
         total_question_score = base_score + speed_bonus + streak_bonus
 
+        queued_flashcards_count = 0
+        if not is_correct:
+            queued_flashcards_count = self._queue_related_flashcards(user.id, question_id)
+
         progress = UserQuizProgress.query.filter_by(user_id=user.id, quiz_id=quiz_id).first()
         if not progress:
             progress = UserQuizProgress(
@@ -356,4 +402,5 @@ class QuizSubmit(Resource):
             'newlyEarnedBadges': newly_earned_badges,
             'explanation': question_dict.get('explanation', ''),
             'stageCompleted': stage_completed_perfectly,
+            'queuedFlashcardsCount': queued_flashcards_count,
         }, 200

@@ -1,9 +1,6 @@
-// File: frontend/src/router/index.js
-
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
-// ما کامپوننت‌های صفحات را بعداً می‌سازیم، فعلاً فقط آنها را import می‌کنیم.
 import HomePage from '../pages/HomePage.vue';
 import LoginPage from '../pages/LoginPage.vue';
 import RegisterPage from '../pages/RegisterPage.vue';
@@ -34,7 +31,7 @@ const routes = [
   { path: '/terms', name: 'Terms', component: TermsPage },
   { path: '/about', name: 'About', component: AboutPage },
   { path: '/contact', name: 'Contact', component: ContactPage },
-  { path: '/flashcards', name: 'Flashcards', component: FlashcardsPage },
+  { path: '/flashcards', name: 'Flashcards', component: FlashcardsPage, meta: { requiresAuth: true } },
   { path: '/profile', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
 ];
 
@@ -44,31 +41,19 @@ const router = createRouter({
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
-    } 
+    }
     return { top: 0 };
-  }
+  },
 });
 
-// --- Navigation Guard ---
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
-  const isAuthenticated = authStore.isAuthenticated;
-  const requiresAuth = to.meta.requiresAuth;
-
-  if (requiresAuth && !isAuthenticated) {
-    // اگر صفحه نیاز به لاگین داشت ولی کاربر لاگین نبود،
-    // او را به صفحه ورود هدایت کن.
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     authStore.returnUrl = to.fullPath;
-    next('/login');
-  } else if ((to.name === 'Login' || to.name === 'Register') && isAuthenticated) {
-    // اگر کاربر لاگین بود و می‌خواست به صفحه ورود یا ثبت‌نام برود،
-    // او را به داشبورد هدایت کن.
-    next('/dashboard');
+    next({ name: 'Login' });
   } else {
-    // در غیر این صورت، اجازه عبور بده.
     next();
   }
 });
-// --- End Navigation Guard ---
 
 export default router;
