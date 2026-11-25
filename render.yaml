@@ -1,7 +1,35 @@
-# Render Blueprints Library
-# https://render.com/docs/blueprints-library
+# Render Blueprint Specification
+# https://render.com/docs/blueprint-spec
+
+databases:
+  - name: antibioticplay-db
+    databaseName: antibioticplay
+    user: antibioticplay
+    plan: free
+
 services:
-  # Frontend Service
+  # Backend API Service (Flask + PostgreSQL)
+  - type: web
+    name: antibioticplay-backend
+    env: python
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python seed_db.py --if-empty && gunicorn -b 0.0.0.0:$PORT run:app
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: antibioticplay-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://antibioticplay.ir,https://www.antibioticplay.ir,https://antibioticplay-frontend.onrender.com
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+
+  # Frontend Web Service (Vue 3 + Vite)
   - type: web
     name: antibioticplay-frontend
     env: node
@@ -13,22 +41,3 @@ services:
     plan: free
     autoDeploy: true
     healthCheckPath: /
-
-  # Backend Service
-  - type: web
-    name: antibioticplay-backend
-    env: python
-    buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: cd backend && gunicorn -b 0.0.0.0:$PORT run:app
-    envVars:
-      - key: MONGO_URI
-        value: mongodb+srv://rfarefasadi_db_user:iwbZgf60X6PNPoBF@cluster-antibioticplay.sj62ey3.mongodb.net/antibioticplay?retryWrites=true&w=majority&appName=Cluster-antibioticplay
-      - key: SECRET_KEY
-        value: 6f7a82269a87faa26c816987386e369194e7381f258e2f87f9e04f7bb454e870
-      - key: JWT_SECRET_KEY
-        value: aa4bb104304ada314a342c7cb6d6aa8c699abb13f9112f3a4b5196a2e5ad8d64
-      - key: FRONTEND_URL
-        value: https://antibioticplay.ir,https://www.antibioticplay.ir,https://antibioticplay-frontend.onrender.com
-    plan: free
-    autoDeploy: true
-    healthCheckPath: /health
