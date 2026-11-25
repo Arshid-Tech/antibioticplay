@@ -5,6 +5,7 @@ from app.models import Unit, Quiz, Question, Badge, Flashcard, normalize_asset_p
 from app.quiz_data import QUIZZES, LEARNING_PATH
 from app.badge_data import BADGES
 from app.flashcard_data import FLASHCARDS
+from app.clinical_cases_data import MICRO_LESSONS, CLINICAL_VIGNETTES_QUIZ
 
 
 def _clean_question_payload(q_dict: dict) -> dict:
@@ -39,6 +40,46 @@ def seed_flashcards(if_empty: bool = False):
     return added
 
 
+def seed_clinical_vignettes_and_micro_lessons():
+    """Ensure micro-lessons are populated and the clinical vignettes stage exists."""
+    for quiz_id, lesson_text in MICRO_LESSONS.items():
+        q = Quiz.query.filter_by(id=quiz_id).first()
+        if q and not q.micro_lesson:
+            q.micro_lesson = lesson_text
+
+    # Ensure clinical vignettes stage exists under unit_3
+    unit_3 = Unit.query.filter_by(id='unit_3').first()
+    if unit_3:
+        vignette_quiz = Quiz.query.filter_by(id=CLINICAL_VIGNETTES_QUIZ['id']).first()
+        if not vignette_quiz:
+            max_order = max([q.order_index for q in unit_3.quizzes], default=-1)
+            vignette_quiz = Quiz(
+                id=CLINICAL_VIGNETTES_QUIZ['id'],
+                unit_id=unit_3.id,
+                title=CLINICAL_VIGNETTES_QUIZ['title'],
+                icon=CLINICAL_VIGNETTES_QUIZ['icon'],
+                description=CLINICAL_VIGNETTES_QUIZ['description'],
+                micro_lesson=CLINICAL_VIGNETTES_QUIZ['micro_lesson'],
+                order_index=max_order + 1,
+            )
+            db.session.add(vignette_quiz)
+            db.session.flush()
+
+            for idx, q_dict in enumerate(CLINICAL_VIGNETTES_QUIZ['questions']):
+                db.session.add(
+                    Question(
+                        id=q_dict['id'],
+                        quiz_id=vignette_quiz.id,
+                        order_index=idx,
+                        type=q_dict['type'],
+                        title=q_dict.get('title', ''),
+                        points_per_correct=q_dict.get('points_per_correct', 20),
+                        payload=_clean_question_payload(q_dict),
+                    )
+                )
+            print('🩺 Seeded clinical vignettes stage (6 patient cases).')
+
+
 def seed_database(if_empty: bool = False):
     app = create_app()
     with app.app_context():
@@ -46,8 +87,9 @@ def seed_database(if_empty: bool = False):
 
         quizzes_exist = Quiz.query.first() is not None
         flashcards_exist = Flashcard.query.first() is not None
+        vignettes_exist = Quiz.query.filter_by(id=CLINICAL_VIGNETTES_QUIZ['id']).first() is not None
 
-        if if_empty and quizzes_exist and flashcards_exist:
+        if if_empty and quizzes_exist and flashcards_exist and vignettes_exist:
             print('ℹ️ Database already seeded. Skipping seed (--if-empty).')
             return
 
@@ -84,6 +126,7 @@ def seed_database(if_empty: bool = False):
                 quiz.title = quiz_data['title']
                 quiz.icon = quiz_data.get('icon', 'star')
                 quiz.description = quiz_data.get('description', '')
+                quiz.micro_lesson = MICRO_LESSONS.get(quiz_id, quiz.micro_lesson or '')
                 quiz.order_index = order_idx
                 quiz_count += 1
 
@@ -119,6 +162,8 @@ def seed_database(if_empty: bool = False):
                 badge_count += 1
 
             print(f'🚀 Seeded {len(LEARNING_PATH)} units, {quiz_count} quizzes, {question_count} questions, and {badge_count} badges.')
+
+        seed_clinical_vignettes_and_micro_lessons()
 
         fc_added = seed_flashcards(if_empty=if_empty)
         if fc_added:

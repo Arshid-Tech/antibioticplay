@@ -13,6 +13,13 @@ from .flashcards import (
     FlashcardBookmarkToggle,
     FlashcardStats,
 )
+from .challenges import (
+    DailyChallengeView,
+    DailyChallengeAnswer,
+    DuelCreate,
+    DuelDetail,
+    DuelSubmit,
+)
 
 auth_bp = Blueprint('auth_bp', __name__)
 auth_api = Api(auth_bp)
@@ -48,3 +55,11 @@ flashcards_api.add_resource(FlashcardDueList, '/due')
 flashcards_api.add_resource(FlashcardReview, '/review')
 flashcards_api.add_resource(FlashcardBookmarkToggle, '/bookmark')
 flashcards_api.add_resource(FlashcardStats, '/stats')
+
+challenges_bp = Blueprint('challenges_bp', __name__)
+challenges_api = Api(challenges_bp)
+challenges_api.add_resource(DailyChallengeView, '/daily')
+challenges_api.add_resource(DailyChallengeAnswer, '/daily/submit')
+challenges_api.add_resource(DuelCreate, '/duel/create')
+challenges_api.add_resource(DuelDetail, '/duel/<string:duel_id>')
+challenges_api.add_resource(DuelSubmit, '/duel/<string:duel_id>/submit')
