@@ -63,6 +63,7 @@ def create_app():
         bookmarks_bp,
         flashcards_bp,
         challenges_bp,
+        survey_bp,
     )
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -72,6 +73,7 @@ def create_app():
     app.register_blueprint(bookmarks_bp, url_prefix='/api/bookmarks')
     app.register_blueprint(flashcards_bp, url_prefix='/api/flashcards')
     app.register_blueprint(challenges_bp, url_prefix='/api/challenges')
+    app.register_blueprint(survey_bp, url_prefix='/api/survey')
 
     @app.route('/health')
     def health_check():

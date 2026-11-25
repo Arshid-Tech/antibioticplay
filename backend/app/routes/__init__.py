@@ -20,6 +20,7 @@ from .challenges import (
     DuelDetail,
     DuelSubmit,
 )
+from .survey import SurveyStatus, SurveySubmit
 
 auth_bp = Blueprint('auth_bp', __name__)
 auth_api = Api(auth_bp)
@@ -63,3 +64,8 @@ challenges_api.add_resource(DailyChallengeAnswer, '/daily/submit')
 challenges_api.add_resource(DuelCreate, '/duel/create')
 challenges_api.add_resource(DuelDetail, '/duel/<string:duel_id>')
 challenges_api.add_resource(DuelSubmit, '/duel/<string:duel_id>/submit')
+
+survey_bp = Blueprint('survey_bp', __name__)
+survey_api = Api(survey_bp)
+survey_api.add_resource(SurveyStatus, '/status')
+survey_api.add_resource(SurveySubmit, '/submit')
