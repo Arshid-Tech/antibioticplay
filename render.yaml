@@ -24,7 +24,7 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: FRONTEND_URL
-        value: https://antibioticplay.ir,https://www.antibioticplay.ir,https://antibioticplay-frontend.onrender.com
+        value: https://antibioticplay.arshid.tech,https://antibioticplay-frontend-gjsx.onrender.com,https://antibioticplay-frontend.onrender.com,https://antibioticplay.ir,https://www.antibioticplay.ir
     plan: free
     autoDeploy: true
     healthCheckPath: /health
