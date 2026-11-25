@@ -1,9 +1,6 @@
-// File: frontend/src/router/index.js
-
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
-// ما کامپوننت‌های صفحات را بعداً می‌سازیم، فعلاً فقط آنها را import می‌کنیم.
 import HomePage from '../pages/HomePage.vue';
 import LoginPage from '../pages/LoginPage.vue';
 import RegisterPage from '../pages/RegisterPage.vue';
@@ -19,6 +16,10 @@ import AboutPage from '../pages/AboutPage.vue';
 import ContactPage from '../pages/ContactPage.vue';
 import FlashcardsPage from '../pages/FlashcardsPage.vue';
 import ProfilePage from '../pages/ProfilePage.vue';
+import DailyChallengePage from '../pages/DailyChallengePage.vue';
+import DuelPage from '../pages/DuelPage.vue';
+import SurveyPage from '../pages/SurveyPage.vue';
+import AdminPage from '../pages/AdminPage.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: HomePage },
@@ -34,8 +35,12 @@ const routes = [
   { path: '/terms', name: 'Terms', component: TermsPage },
   { path: '/about', name: 'About', component: AboutPage },
   { path: '/contact', name: 'Contact', component: ContactPage },
-  { path: '/flashcards', name: 'Flashcards', component: FlashcardsPage },
+  { path: '/flashcards', name: 'Flashcards', component: FlashcardsPage, meta: { requiresAuth: true } },
   { path: '/profile', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
+  { path: '/daily-challenge', name: 'DailyChallenge', component: DailyChallengePage, meta: { requiresAuth: true } },
+  { path: '/duel/:id', name: 'Duel', component: DuelPage, meta: { requiresAuth: true } },
+  { path: '/survey', name: 'Survey', component: SurveyPage, meta: { requiresAuth: true } },
+  { path: '/admin', name: 'Admin', component: AdminPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 const router = createRouter({
@@ -44,31 +49,21 @@ const router = createRouter({
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
-    } 
+    }
     return { top: 0 };
-  }
+  },
 });
 
-// --- Navigation Guard ---
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
-  const isAuthenticated = authStore.isAuthenticated;
-  const requiresAuth = to.meta.requiresAuth;
-
-  if (requiresAuth && !isAuthenticated) {
-    // اگر صفحه نیاز به لاگین داشت ولی کاربر لاگین نبود،
-    // او را به صفحه ورود هدایت کن.
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     authStore.returnUrl = to.fullPath;
-    next('/login');
-  } else if ((to.name === 'Login' || to.name === 'Register') && isAuthenticated) {
-    // اگر کاربر لاگین بود و می‌خواست به صفحه ورود یا ثبت‌نام برود،
-    // او را به داشبورد هدایت کن.
-    next('/dashboard');
+    next({ name: 'Login' });
+  } else if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
+    next({ name: 'Dashboard' });
   } else {
-    // در غیر این صورت، اجازه عبور بده.
     next();
   }
 });
-// --- End Navigation Guard ---
 
 export default router;

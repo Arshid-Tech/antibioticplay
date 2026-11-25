@@ -1,6 +1,5 @@
 <template>
   <div class="result-page">
-    
     <div class="result-header">
       <h1 class="completion-title">درس تمام شد!</h1>
       <div class="result-image-wrapper">
@@ -9,7 +8,6 @@
     </div>
 
     <div class="stats-grid">
-      
       <div class="stat-card xp-card">
         <div class="stat-label">XP دریافتی</div>
         <div class="stat-value text-warning">
@@ -32,7 +30,6 @@
           {{ performanceLabel }}
         </div>
       </div>
-
     </div>
 
     <div v-if="didLevelUp" class="level-up-banner slide-up-animation">
@@ -46,40 +43,50 @@
     </div>
 
     <footer class="result-footer">
+      <button
+        v-if="quizStore.currentQuiz?.id"
+        class="btn duel-share-btn"
+        :disabled="creatingDuel"
+        @click="createAndShareDuel"
+      >
+        ⚔️ {{ creatingDuel ? 'در حال ساخت لینک دوئل...' : 'به چالش کشیدن هم‌کلاسی (ساخت دوئل)' }}
+      </button>
+
       <router-link to="/dashboard" class="btn btn-primary continue-btn">
         ادامه
       </router-link>
     </footer>
-
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useQuizStore } from '../stores/quiz';
 import { useAuthStore } from '../stores/auth';
+import { useNotificationStore } from '../stores/notificationStore';
+import challengeService from '../services/challengeService';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faFire, faPlus, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 
-// Import images
 import resultGoodImg from '../assets/result_good.jpg';
 import resultBadImg from '../assets/result_bad.jpg';
 
 library.add(faFire, faPlus, faArrowUp);
 
+const router = useRouter();
 const quizStore = useQuizStore();
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
+const creatingDuel = ref(false);
 
 const xpGainedDisplay = computed(() => {
-  // این مقدار را باید از آخرین پاسخ سرور بگیریم
-  // اگر مقدار وجود نداشت (مثلا رفرش صفحه)، صفر نشان بده
   return quizStore.lastSubmissionResult?.xpGained || 0;
 });
 
-// تعیین تصویر و متن بر اساس عملکرد
 const performanceLabel = computed(() => {
   const score = quizStore.currentSessionScore;
-  const possible = quizStore.currentQuiz?.total_possible_score || 10;
+  const possible = quizStore.currentQuiz?.total_possible_score || 50;
   const percentage = (score / possible) * 100;
 
   if (percentage >= 80) return 'عالی!';
@@ -89,16 +96,43 @@ const performanceLabel = computed(() => {
 
 const resultImage = computed(() => {
   const score = quizStore.currentSessionScore;
-  const possible = quizStore.currentQuiz?.total_possible_score || 10;
-  // اگر بیش از نصف نمره را گرفته باشد، تصویر خوشحال
-  return (score >= possible / 2) ? resultGoodImg : resultBadImg;
+  const possible = quizStore.currentQuiz?.total_possible_score || 50;
+  return score >= possible / 2 ? resultGoodImg : resultBadImg;
 });
 
 const didLevelUp = computed(() => {
   return quizStore.lastSubmissionResult && quizStore.lastSubmissionResult.levelUp;
 });
 
-// حذف لاجیک نوتیفیکیشن پاپ‌آپ از اینجا
+const createAndShareDuel = async () => {
+  if (!quizStore.currentQuiz?.id || creatingDuel.value) return;
+  creatingDuel.value = true;
+  try {
+    const res = await challengeService.createDuel(
+      quizStore.currentQuiz.id,
+      quizStore.currentSessionScore
+    );
+    const duelId = res.data.duel_id;
+    const shareUrl = `${window.location.origin}/duel/${duelId}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      notificationStore.showNotification({
+        title: '⚔️ لینک دوئل ساخته و کپی شد!',
+        message: 'لینک را برای هم‌کلاسی‌تان بفرستید تا ببینید کی امتیاز بالاتری می‌گیرد.',
+      });
+    } catch {
+      // Clipboard might be blocked; user is redirected to duel page anyway
+    }
+    router.push({ name: 'Duel', params: { id: duelId } });
+  } catch (err) {
+    notificationStore.showNotification({
+      title: 'خطا',
+      message: 'در ساخت لینک دوئل خطایی رخ داد.',
+    });
+  } finally {
+    creatingDuel.value = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -112,29 +146,28 @@ const didLevelUp = computed(() => {
   text-align: center;
 }
 
-/* --- Header --- */
 .result-header {
   margin-top: 2rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
+
 .completion-title {
-  color: var(--color-warning); /* Gold/Yellow color */
-  font-size: 2.5rem;
+  color: var(--color-warning);
+  font-size: 2.4rem;
   font-weight: 900;
   margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
+
 .result-image-wrapper {
-  width: 200px;
-  height: 200px;
+  width: 190px;
+  height: 190px;
   margin: 0 auto;
 }
+
 .result-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  /* Add a subtle float animation */
   animation: float 3s ease-in-out infinite;
 }
 
@@ -143,7 +176,6 @@ const didLevelUp = computed(() => {
   50% { transform: translateY(-10px); }
 }
 
-/* --- Stats Grid --- */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -162,7 +194,7 @@ const didLevelUp = computed(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 0 var(--color-border); /* 3D effect */
+  box-shadow: 0 4px 0 var(--color-border);
 }
 
 .stat-label {
@@ -180,13 +212,11 @@ const didLevelUp = computed(() => {
   gap: 0.3rem;
 }
 
-/* Colors */
 .text-warning { color: var(--color-warning); }
 .text-fire { color: #ff9600; }
 .text-primary { color: var(--color-primary); }
 .small-icon { font-size: 1rem; }
 
-/* --- Level Up Banner --- */
 .level-up-banner {
   background-color: #d7ffb8;
   border: 2px solid var(--color-primary);
@@ -197,12 +227,14 @@ const didLevelUp = computed(() => {
   max-width: 600px;
   box-sizing: border-box;
 }
+
 .level-content {
   display: flex;
   align-items: center;
   gap: 1rem;
   text-align: right;
 }
+
 .level-icon {
   font-size: 2rem;
   color: var(--color-primary);
@@ -210,41 +242,42 @@ const didLevelUp = computed(() => {
   padding: 10px;
   border-radius: 50%;
 }
-.level-content h3 { margin: 0 0 0.2rem 0; color: var(--color-primary-dark); }
+
+.level-content h3 { margin: 0 0 0.2rem; color: var(--color-primary-dark); }
 .level-content p { margin: 0; color: var(--color-text); font-size: 0.95rem; }
 
-/* --- Footer --- */
 .result-footer {
-  margin-top: auto; /* Push to bottom */
+  margin-top: auto;
   width: 100%;
   max-width: 600px;
   padding-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
 }
+
+.duel-share-btn {
+  width: 100%;
+  padding: 0.95rem;
+  font-size: 1.02rem;
+  background: #ede7f6;
+  color: #4a148c;
+  border: 2px solid #b39ddb;
+  border-bottom-width: 4px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .continue-btn {
   width: 100%;
   padding: 1rem;
   font-size: 1.2rem;
 }
 
-/* --- Animations --- */
-.slide-up-animation {
-  animation: slideUp 0.5s ease-out;
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Mobile Responsive */
 @media (max-width: 600px) {
-  .stats-grid {
-    grid-template-columns: 1fr; /* Stack cards on mobile */
-  }
-  .stat-card {
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-  }
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat-card { flex-direction: row; justify-content: space-between; padding: 1rem 2rem; }
   .stat-label { margin-bottom: 0; }
 }
 </style>

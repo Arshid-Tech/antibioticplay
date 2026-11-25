@@ -1,44 +1,96 @@
 from flask import Blueprint
 from flask_restful import Api
 
-# ایمپورت کردن کلاس‌های احراز هویت و آپدیت آواتار
 from .auth import UserRegistration, UserLogin, UserProfile, UpdateAvatar
-
 from .quiz import QuizList, QuizDetail, QuizSubmit
 from .leaderboard import Leaderboard
 from .badge_routes import AllBadges, EarnedBadges
 from .bookmarks import BookmarkToggle, BookmarkList
+from .flashcards import (
+    FlashcardCategories,
+    FlashcardDueList,
+    FlashcardReview,
+    FlashcardBookmarkToggle,
+    FlashcardStats,
+)
+from .challenges import (
+    DailyChallengeView,
+    DailyChallengeAnswer,
+    DuelCreate,
+    DuelDetail,
+    DuelSubmit,
+)
+from .survey import SurveyStatus, SurveySubmit
+from .admin import (
+    AdminAnalytics,
+    AdminExportCSV,
+    AdminQuizCollection,
+    AdminQuizItem,
+    AdminQuestionCollection,
+    AdminQuestionItem,
+    AdminFlashcardCollection,
+    AdminFlashcardItem,
+    AdminUsersList,
+    AdminUserRoleUpdate,
+)
 
-# Auth Blueprint setup
 auth_bp = Blueprint('auth_bp', __name__)
 auth_api = Api(auth_bp)
-
-# ثبت اندپوینت‌های مربوط به کاربر
 auth_api.add_resource(UserRegistration, '/register')
 auth_api.add_resource(UserLogin, '/login')
 auth_api.add_resource(UserProfile, '/profile')
-auth_api.add_resource(UpdateAvatar, '/update-avatar')  # <-- اندپوینت جدید اضافه شد
+auth_api.add_resource(UpdateAvatar, '/update-avatar')
 
-# Quiz Blueprint setup
 quiz_bp = Blueprint('quiz_bp', __name__)
 quiz_api = Api(quiz_bp)
 quiz_api.add_resource(QuizList, '/')
 quiz_api.add_resource(QuizDetail, '/<string:quiz_id>')
 quiz_api.add_resource(QuizSubmit, '/submit')
 
-# Leaderboard Blueprint setup
 leaderboard_bp = Blueprint('leaderboard_bp', __name__)
 leaderboard_api = Api(leaderboard_bp)
 leaderboard_api.add_resource(Leaderboard, '/')
 
-# Badge Blueprint setup
 badge_bp = Blueprint('badge_bp', __name__)
 badge_api = Api(badge_bp)
 badge_api.add_resource(AllBadges, '/all')
 badge_api.add_resource(EarnedBadges, '/earned')
 
-# Bookmarks Blueprint setup
 bookmarks_bp = Blueprint('bookmarks_bp', __name__)
 bookmarks_api = Api(bookmarks_bp)
 bookmarks_api.add_resource(BookmarkToggle, '/')
 bookmarks_api.add_resource(BookmarkList, '/list')
+
+flashcards_bp = Blueprint('flashcards_bp', __name__)
+flashcards_api = Api(flashcards_bp)
+flashcards_api.add_resource(FlashcardCategories, '/categories')
+flashcards_api.add_resource(FlashcardDueList, '/due')
+flashcards_api.add_resource(FlashcardReview, '/review')
+flashcards_api.add_resource(FlashcardBookmarkToggle, '/bookmark')
+flashcards_api.add_resource(FlashcardStats, '/stats')
+
+challenges_bp = Blueprint('challenges_bp', __name__)
+challenges_api = Api(challenges_bp)
+challenges_api.add_resource(DailyChallengeView, '/daily')
+challenges_api.add_resource(DailyChallengeAnswer, '/daily/submit')
+challenges_api.add_resource(DuelCreate, '/duel/create')
+challenges_api.add_resource(DuelDetail, '/duel/<string:duel_id>')
+challenges_api.add_resource(DuelSubmit, '/duel/<string:duel_id>/submit')
+
+survey_bp = Blueprint('survey_bp', __name__)
+survey_api = Api(survey_bp)
+survey_api.add_resource(SurveyStatus, '/status')
+survey_api.add_resource(SurveySubmit, '/submit')
+
+admin_bp = Blueprint('admin_bp', __name__)
+admin_api = Api(admin_bp)
+admin_api.add_resource(AdminAnalytics, '/analytics')
+admin_api.add_resource(AdminExportCSV, '/export/<string:export_type>')
+admin_api.add_resource(AdminQuizCollection, '/quizzes')
+admin_api.add_resource(AdminQuizItem, '/quizzes/<string:quiz_id>')
+admin_api.add_resource(AdminQuestionCollection, '/questions')
+admin_api.add_resource(AdminQuestionItem, '/questions/<string:question_id>')
+admin_api.add_resource(AdminFlashcardCollection, '/flashcards')
+admin_api.add_resource(AdminFlashcardItem, '/flashcards/<int:fc_id>')
+admin_api.add_resource(AdminUsersList, '/users')
+admin_api.add_resource(AdminUserRoleUpdate, '/users/<int:user_id>/role')

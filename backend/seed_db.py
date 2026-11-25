@@ -1,29 +1,223 @@
-from app import create_app, mongo
+import os
+import sys
+from copy import deepcopy
+from app import create_app, db
+from app.models import User, Unit, Quiz, Question, Badge, Flashcard, normalize_asset_path
 from app.quiz_data import QUIZZES, LEARNING_PATH
 from app.badge_data import BADGES
+from app.flashcard_data import FLASHCARDS
+from app.clinical_cases_data import MICRO_LESSONS, CLINICAL_VIGNETTES_QUIZ
 
-app = create_app()
 
-with app.app_context():
-    print("--- Starting Database Reset ---")
+def _clean_question_payload(q_dict: dict) -> dict:
+    cleaned = deepcopy(q_dict)
+    if 'hint' in cleaned:
+        cleaned['hint'] = normalize_asset_path(cleaned['hint'])
+    if 'image' in cleaned:
+        cleaned['image'] = normalize_asset_path(cleaned['image'])
+    return cleaned
 
-    mongo.db.quizzes.drop()
-    print("✅ Existing quizzes collection dropped.")
-    
-    mongo.db.badges.drop()
-    print("✅ Existing badges collection dropped.")
 
-    # mongo.db.users.drop()
-    # print("✅ Users collection dropped (Fresh Start).")
+def seed_admin_from_env():
+    """Optionally bootstrap an admin account from ADMIN_USERNAME / ADMIN_EMAIL / ADMIN_PASSWORD env vars."""
+    admin_email = (os.environ.get('ADMIN_EMAIL') or '').strip().lower()
+    admin_username = (os.environ.get('ADMIN_USERNAME') or 'admin').strip()
+    admin_password = os.environ.get('ADMIN_PASSWORD')
 
-    all_quizzes = list(QUIZZES.values())
-    if all_quizzes:
-        mongo.db.quizzes.insert_many(all_quizzes)
-    print(f"🚀 Successfully inserted {len(all_quizzes)} quiz modules.")
+    if not admin_email or not admin_password:
+        return
 
-    all_badges = list(BADGES.values())
-    if all_badges:
-        mongo.db.badges.insert_many(all_badges)
-    print(f"🚀 Successfully inserted {len(all_badges)} badges.")
+    user = User.find_by_email(admin_email) or User.find_by_username(admin_username)
+    if user:
+        if user.role != 'admin':
+            user.role = 'admin'
+            print(f'👑 Promoted existing user "{user.username}" to admin.')
+        return
 
-    print("--- Database Reset Complete ---")
+    admin_user = User(
+        username=admin_username,
+        email=admin_email,
+        first_name='مدیر',
+        last_name='سیستم',
+        role='admin',
+        avatar_id='fleming',
+    )
+    admin_user.set_password(admin_password)
+    db.session.add(admin_user)
+    print(f'👑 Created admin account "{admin_username}" ({admin_email}).')
+
+
+def seed_flashcards(if_empty: bool = False):
+    if if_empty and Flashcard.query.first() is not None:
+        return 0
+
+    existing_fronts = {fc.front for fc in Flashcard.query.all()}
+    added = 0
+    for item in FLASHCARDS:
+        if item['front'] in existing_fronts:
+            continue
+        db.session.add(
+            Flashcard(
+                category=item['category'],
+                subcategory=item.get('subcategory', ''),
+                front=item['front'],
+                back=item['back'],
+                clinical_pearl=item.get('clinical_pearl', ''),
+                related_question_id=item.get('related_question_id'),
+            )
+        )
+        added += 1
+    return added
+
+
+def seed_clinical_vignettes_and_micro_lessons():
+    for quiz_id, lesson_text in MICRO_LESSONS.items():
+        q = Quiz.query.filter_by(id=quiz_id).first()
+        if q and not q.micro_lesson:
+            q.micro_lesson = lesson_text
+
+    unit_3 = Unit.query.filter_by(id='unit_3').first()
+    if unit_3:
+        vignette_quiz = Quiz.query.filter_by(id=CLINICAL_VIGNETTES_QUIZ['id']).first()
+        if not vignette_quiz:
+            max_order = max([q.order_index for q in unit_3.quizzes], default=-1)
+            vignette_quiz = Quiz(
+                id=CLINICAL_VIGNETTES_QUIZ['id'],
+                unit_id=unit_3.id,
+                title=CLINICAL_VIGNETTES_QUIZ['title'],
+                icon=CLINICAL_VIGNETTES_QUIZ['icon'],
+                description=CLINICAL_VIGNETTES_QUIZ['description'],
+                micro_lesson=CLINICAL_VIGNETTES_QUIZ['micro_lesson'],
+                order_index=max_order + 1,
+            )
+            db.session.add(vignette_quiz)
+            db.session.flush()
+
+            for idx, q_dict in enumerate(CLINICAL_VIGNETTES_QUIZ['questions']):
+                db.session.add(
+                    Question(
+                        id=q_dict['id'],
+                        quiz_id=vignette_quiz.id,
+                        order_index=idx,
+                        type=q_dict['type'],
+                        title=q_dict.get('title', ''),
+                        points_per_correct=q_dict.get('points_per_correct', 20),
+                        payload=_clean_question_payload(q_dict),
+                    )
+                )
+            print('🩺 Seeded clinical vignettes stage (6 patient cases).')
+
+
+def seed_database(if_empty: bool = False):
+    app = create_app()
+    with app.app_context():
+        db.create_all()
+        seed_admin_from_env()
+
+        quizzes_exist = Quiz.query.first() is not None
+        flashcards_exist = Flashcard.query.first() is not None
+        vignettes_exist = Quiz.query.filter_by(id=CLINICAL_VIGNETTES_QUIZ['id']).first() is not None
+
+        if if_empty and quizzes_exist and flashcards_exist and vignettes_exist:
+            db.session.commit()
+            print('ℹ️ Database already seeded. Skipping seed (--if-empty).')
+            return
+
+        print('--- Starting PostgreSQL Database Seed ---')
+
+        if not (if_empty and quizzes_exist):
+            quiz_to_unit = {}
+            for u_idx, unit_data in enumerate(LEARNING_PATH):
+                unit = Unit.query.filter_by(id=unit_data['id']).first()
+                if not unit:
+                    unit = Unit(id=unit_data['id'])
+                    db.session.add(unit)
+                unit.title = unit_data['title']
+                unit.description = unit_data.get('description', '')
+                unit.color = unit_data.get('color', '#4caf50')
+                unit.order_index = u_idx
+
+                for q_idx, quiz_id in enumerate(unit_data.get('levels', [])):
+                    quiz_to_unit[quiz_id] = (unit_data['id'], q_idx)
+
+            db.session.flush()
+
+            quiz_count = 0
+            question_count = 0
+
+            for quiz_id, quiz_data in QUIZZES.items():
+                unit_id, order_idx = quiz_to_unit.get(quiz_id, (None, quiz_count))
+                quiz = Quiz.query.filter_by(id=quiz_id).first()
+                if not quiz:
+                    quiz = Quiz(id=quiz_id)
+                    db.session.add(quiz)
+
+                quiz.unit_id = unit_id
+                quiz.title = quiz_data['title']
+                quiz.icon = quiz_data.get('icon', 'star')
+                quiz.description = quiz_data.get('description', '')
+                quiz.micro_lesson = MICRO_LESSONS.get(quiz_id, quiz.micro_lesson or '')
+                quiz.order_index = order_idx
+                quiz_count += 1
+
+                db.session.flush()
+
+                for idx, q_dict in enumerate(quiz_data.get('questions', [])):
+                    q_id = q_dict['id']
+                    cleaned_payload = _clean_question_payload(q_dict)
+
+                    question = Question.query.filter_by(id=q_id).first()
+                    if not question:
+                        question = Question(id=q_id, quiz_id=quiz_id)
+                        db.session.add(question)
+
+                    question.quiz_id = quiz_id
+                    question.order_index = idx
+                    question.type = cleaned_payload.get('type', 'multiple-select')
+                    question.title = cleaned_payload.get('title', '')
+                    question.points_per_correct = cleaned_payload.get('points_per_correct', 10)
+                    question.payload = cleaned_payload
+                    question_count += 1
+
+            badge_count = 0
+            for badge_id, badge_data in BADGES.items():
+                badge = Badge.query.filter_by(id=badge_id).first()
+                if not badge:
+                    badge = Badge(id=badge_id)
+                    db.session.add(badge)
+                badge.name = badge_data['name']
+                badge.description = badge_data.get('description', '')
+                badge.icon = badge_data.get('icon', 'fas fa-medal')
+                badge.criteria = badge_data.get('criteria', {})
+                badge_count += 1
+
+            print(f'🚀 Seeded {len(LEARNING_PATH)} units, {quiz_count} quizzes, {question_count} questions, and {badge_count} badges.')
+
+        seed_clinical_vignettes_and_micro_lessons()
+
+        fc_added = seed_flashcards(if_empty=if_empty)
+        if fc_added:
+            print(f'🗂️ Seeded {fc_added} flashcards.')
+
+        db.session.commit()
+        print('--- Database Seed Complete ---')
+
+
+if __name__ == '__main__':
+    if '--make-admin' in sys.argv:
+        idx = sys.argv.index('--make-admin')
+        if idx + 1 < len(sys.argv):
+            target = sys.argv[idx + 1]
+            app = create_app()
+            with app.app_context():
+                u = User.find_by_username(target) or User.find_by_email(target.lower())
+                if u:
+                    u.role = 'admin'
+                    db.session.commit()
+                    print(f'👑 User "{u.username}" is now admin.')
+                else:
+                    print(f'❌ User "{target}" not found.')
+            sys.exit(0)
+
+    if_empty_flag = '--if-empty' in sys.argv
+    seed_database(if_empty=if_empty_flag)
