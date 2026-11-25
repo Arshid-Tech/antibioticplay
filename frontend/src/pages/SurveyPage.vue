@@ -5,7 +5,7 @@
         <router-link to="/dashboard" class="back-btn" title="بازگشت به داشبورد">
           <font-awesome-icon icon="fas fa-arrow-right" />
         </router-link>
-        <div>
+        <div class="header-text">
           <h1>پرسشنامه ارزشیابی بازی آموزشی (MEEGA+)</h1>
           <p>دیدگاه شما به ارتقای کیفیت علمی و آموزشی AntibioticPlay کمک می‌کند (+۵۰ XP پاداش)</p>
         </div>
@@ -29,7 +29,7 @@
         <div class="sticky-progress">
           <div class="progress-info">
             <span>پیشرفت تکمیل پرسشنامه</span>
-            <strong>{{ answeredCount }} از ۳۱ سوال</strong>
+            <strong>{{ toFa(answeredCount) }} از ۳۱ سوال</strong>
           </div>
           <div class="progress-track">
             <div class="progress-fill" :style="{ width: `${(answeredCount / 31) * 100}%` }"></div>
@@ -126,7 +126,7 @@
             :class="{ unanswered: showValidation && !form.answers[item.key] }"
           >
             <p class="likert-question">
-              <span class="q-num">{{ item.num }}.</span>
+              <span class="q-num">{{ toFa(item.num) }}.</span>
               {{ item.text }}
             </p>
             <div class="likert-options">
@@ -138,7 +138,7 @@
                 :class="{ selected: form.answers[item.key] === opt.value }"
                 @click="form.answers[item.key] = opt.value"
               >
-                <span class="likert-num">{{ opt.value }}</span>
+                <span class="likert-num">{{ opt.faNum }}</span>
                 <span class="likert-label">{{ opt.label }}</span>
               </button>
             </div>
@@ -189,6 +189,11 @@ const submitting = ref(false);
 const showValidation = ref(false);
 const errorMsg = ref('');
 
+const toFa = (val) => {
+  if (val === null || val === undefined) return '';
+  return String(val).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+};
+
 const gameFrequencies = [
   'هرگز',
   'به ندرت',
@@ -198,11 +203,11 @@ const gameFrequencies = [
 ];
 
 const likertScale = [
-  { value: 1, label: 'کاملاً مخالفم' },
-  { value: 2, label: 'مخالفم' },
-  { value: 3, label: 'نظری ندارم' },
-  { value: 4, label: 'موافقم' },
-  { value: 5, label: 'کاملاً موافقم' },
+  { value: 1, faNum: '۱', label: 'کاملاً مخالفم' },
+  { value: 2, faNum: '۲', label: 'مخالفم' },
+  { value: 3, faNum: '۳', label: 'نظری ندارم' },
+  { value: 4, faNum: '۴', label: 'موافقم' },
+  { value: 5, faNum: '۵', label: 'کاملاً موافقم' },
 ];
 
 const meegaGroups = [
@@ -313,7 +318,7 @@ const handleSubmit = async () => {
     alreadySubmitted.value = true;
     notificationStore.showNotification({
       title: '🎉 سپاس از مشارکت شما!',
-      message: `پرسشنامه با موفقیت ثبت شد و +${res.data.xp_awarded || 50} XP به امتیاز شما اضافه گردید.`,
+      message: `پرسشنامه با موفقیت ثبت شد و +${toFa(res.data.xp_awarded || 50)} XP به امتیاز شما اضافه گردید.`,
     });
     router.push('/dashboard');
   } catch (err) {
@@ -330,12 +335,16 @@ const handleSubmit = async () => {
   background: #f6f8fb;
   direction: rtl;
   padding-bottom: 3rem;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .survey-header {
   background: linear-gradient(135deg, #0288d1, #009688);
   color: #fff;
-  padding: 1.25rem 1.5rem;
+  padding: 1.1rem 1rem;
+  box-sizing: border-box;
 }
 
 .header-inner {
@@ -343,7 +352,11 @@ const handleSubmit = async () => {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
+}
+
+.header-text {
+  min-width: 0;
 }
 
 .back-btn {
@@ -361,19 +374,23 @@ const handleSubmit = async () => {
 
 .survey-header h1 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
+  line-height: 1.4;
 }
 
 .survey-header p {
   margin: 0.2rem 0 0;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   opacity: 0.92;
+  line-height: 1.45;
 }
 
 .survey-container {
   max-width: 860px;
-  margin: 1.25rem auto 0;
-  padding: 0 1rem;
+  width: 100%;
+  margin: 1rem auto 0;
+  padding: 0 0.85rem;
+  box-sizing: border-box;
 }
 
 .sticky-progress {
@@ -383,15 +400,16 @@ const handleSubmit = async () => {
   background: #ffffff;
   border: 2px solid #e5e7eb;
   border-radius: 14px;
-  padding: 0.85rem 1.1rem;
-  margin-bottom: 1.25rem;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
 }
 
 .progress-info {
   display: flex;
   justify-content: space-between;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   color: #4b5563;
   margin-bottom: 0.45rem;
 }
@@ -413,44 +431,48 @@ const handleSubmit = async () => {
   background: #fff;
   border: 2px solid #e5e7eb;
   border-radius: 18px;
-  padding: 1.4rem;
-  margin-bottom: 1.25rem;
+  padding: 1.15rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-section h2 {
   margin: 0 0 0.4rem;
-  font-size: 1.12rem;
+  font-size: 1.05rem;
   color: #0277bd;
 }
 
 .section-hint {
-  margin: 0 0 1.1rem;
-  font-size: 0.84rem;
+  margin: 0 0 1rem;
+  font-size: 0.82rem;
   color: #6b7280;
+  line-height: 1.5;
 }
 
 .demo-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
 }
 
 .field-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
 }
 
 .field-group label {
   display: block;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: #2c3e50;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.45rem;
+  line-height: 1.5;
 }
 
 .field-group input {
   width: 100%;
-  padding: 0.65rem 0.9rem;
+  padding: 0.65rem 0.85rem;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
   font-size: 0.95rem;
@@ -459,7 +481,7 @@ const handleSubmit = async () => {
 
 .choice-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 
 .choice-row.wrap {
@@ -467,11 +489,13 @@ const handleSubmit = async () => {
 }
 
 .choice-pill {
+  min-width: 0 !important;
   background: #f8fafc;
   border: 2px solid #e2e8f0;
+  border-bottom-width: 3px;
   border-radius: 10px;
-  padding: 0.5rem 0.9rem;
-  font-size: 0.86rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.84rem;
   font-weight: 700;
   color: #4b5563;
   cursor: pointer;
@@ -485,11 +509,13 @@ const handleSubmit = async () => {
 }
 
 .likert-row {
-  padding: 0.95rem 0.85rem;
+  padding: 0.85rem 0.75rem;
   border-radius: 12px;
   border: 1px solid #f0f2f5;
   margin-bottom: 0.75rem;
   background: #fafbfc;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .likert-row.unanswered {
@@ -499,10 +525,10 @@ const handleSubmit = async () => {
 
 .likert-question {
   margin: 0 0 0.7rem;
-  font-size: 0.94rem;
+  font-size: 0.92rem;
   color: #1f2937;
   font-weight: 700;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .q-num {
@@ -512,22 +538,28 @@ const handleSubmit = async () => {
 
 .likert-options {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.45rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.35rem;
+  width: 100%;
 }
 
 .likert-btn {
+  min-width: 0 !important;
+  width: 100%;
   background: #fff;
   border: 2px solid #e5e7eb;
+  border-bottom-width: 3px;
   border-radius: 10px;
-  padding: 0.45rem 0.25rem;
+  padding: 0.45rem 0.15rem;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.15rem;
   color: #4b5563;
   transition: all 0.15s;
+  box-sizing: border-box;
 }
 
 .likert-btn:hover {
@@ -543,20 +575,23 @@ const handleSubmit = async () => {
 .likert-num {
   font-size: 1rem;
   font-weight: 900;
+  line-height: 1.2;
 }
 
 .likert-label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   text-align: center;
+  line-height: 1.25;
+  word-break: break-word;
 }
 
 .feedback-textarea {
   width: 100%;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
-  padding: 0.85rem;
+  padding: 0.8rem;
   font-family: inherit;
-  font-size: 0.94rem;
+  font-size: 0.92rem;
   box-sizing: border-box;
   resize: vertical;
 }
@@ -569,6 +604,7 @@ const handleSubmit = async () => {
   border-radius: 12px;
   margin-bottom: 1rem;
   font-weight: 700;
+  font-size: 0.88rem;
 }
 
 .submit-row {
@@ -579,20 +615,20 @@ const handleSubmit = async () => {
 .submit-btn {
   width: 100%;
   max-width: 380px;
-  padding: 1rem 1.5rem;
-  font-size: 1.05rem;
+  padding: 0.95rem 1.4rem;
+  font-size: 1rem;
 }
 
 .state-card {
   background: #fff;
   border: 2px solid #e5e7eb;
   border-radius: 20px;
-  padding: 2.5rem 1.5rem;
+  padding: 2.2rem 1.25rem;
   text-align: center;
 }
 
 .big-emoji {
-  font-size: 3.5rem;
+  font-size: 3.2rem;
   margin-bottom: 0.5rem;
 }
 
@@ -600,8 +636,23 @@ const handleSubmit = async () => {
   .demo-grid {
     grid-template-columns: 1fr;
   }
+  .card {
+    padding: 0.95rem 0.8rem;
+  }
+  .likert-row {
+    padding: 0.75rem 0.55rem;
+  }
+  .likert-options {
+    gap: 0.25rem;
+  }
+  .likert-btn {
+    padding: 0.4rem 0.1rem;
+  }
+  .likert-num {
+    font-size: 0.95rem;
+  }
   .likert-label {
-    font-size: 0.62rem;
+    font-size: 0.6rem;
   }
 }
 </style>

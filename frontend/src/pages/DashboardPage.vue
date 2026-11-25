@@ -3,7 +3,7 @@
     <header class="dashboard-topbar">
       <div class="topbar-content">
         <div class="right-section">
-          <router-link to="/" class="dashboard-logo-link">
+          <router-link to="/" class="dashboard-logo-link" title="صفحه اصلی سایت">
             <div class="logo-container">
               <font-awesome-icon icon="fas fa-microscope" class="logo-icon" />
               <h2 class="logo-text">AntibioticPlay</h2>
@@ -27,13 +27,13 @@
               class="icon-fire"
               :class="{ 'animate-fire': (user?.correct_streak || 0) > 0 }"
             />
-            <span>{{ user?.correct_streak || 0 }}</span>
+            <span>{{ toFa(user?.correct_streak || 0) }}</span>
           </div>
 
           <div class="stat-item" title="امتیاز کل">
             <font-awesome-icon icon="fas fa-star" class="icon-gem" />
             <span :class="{ 'score-pop-animation': scoreJustUpdated }">
-              {{ score || 0 }}
+              {{ toFa(score || 0) }}
             </span>
           </div>
         </div>
@@ -103,7 +103,7 @@
               class="unit-header"
               :style="{ backgroundColor: unit.color || getModuleColor(uIndex) }"
             >
-              <h3>بخش {{ uIndex + 1 }}: {{ unit.title }}</h3>
+              <h3>بخش {{ toFa(uIndex + 1) }}: {{ unit.title }}</h3>
               <p>{{ unit.description }}</p>
             </header>
 
@@ -184,9 +184,9 @@
             </div>
             <div class="rank-info">
               <span class="rank-label">رتبه شما</span>
-              <span class="rank-value">#{{ userRank }}</span>
+              <span class="rank-value">#{{ toFa(userRank) }}</span>
             </div>
-            <div class="xp-info">{{ score }} XP</div>
+            <div class="xp-info">{{ toFa(score) }} XP</div>
           </div>
           <div v-else class="league-placeholder">
             <font-awesome-icon icon="fas fa-trophy" class="league-icon-gray" />
@@ -209,7 +209,7 @@
               <font-awesome-icon :icon="badge.icon.split(' ')" />
             </div>
             <div v-if="earnedBadges.length > 4" class="more-badges">
-              +{{ earnedBadges.length - 4 }}
+              +{{ toFa(earnedBadges.length - 4) }}
             </div>
           </div>
           <div v-else class="empty-state">هنوز نشانی کسب نکرده‌اید.</div>
@@ -271,6 +271,11 @@ const earnedBadges = ref([]);
 const scoreJustUpdated = ref(false);
 const userRank = ref(null);
 const surveyStatus = ref(null);
+
+const toFa = (val) => {
+  if (val === null || val === undefined) return '';
+  return String(val).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+};
 
 const moduleColors = ['#0288d1', '#009688', '#5e35b1', '#43a047', '#e53935'];
 const getModuleColor = (index) => moduleColors[index % moduleColors.length];
@@ -381,24 +386,24 @@ const startQuiz = (level, unitColor) => {
 .dashboard-layout { min-height: 100vh; background-color: white; display: flex; flex-direction: column; }
 
 .dashboard-topbar { background-color: white; border-bottom: 2px solid #e5e5e5; position: sticky; top: 0; z-index: 100; padding: 0.8rem 2rem; }
-.topbar-content { max-width: 1050px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.topbar-content { max-width: 1050px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
 
-.dashboard-logo-link { text-decoration: none; display: inline-block; }
-.logo-container { display: flex; align-items: center; gap: 0.5rem; }
+.dashboard-logo-link { text-decoration: none; display: inline-flex; align-items: center; }
+.logo-container { display: flex; align-items: center; gap: 0.45rem; }
 .logo-icon { font-size: 1.4rem; color: var(--color-primary); }
 .logo-text {
   background: linear-gradient(45deg, var(--color-primary), #2c3e50);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 800;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   margin: 0;
 }
 
-.left-section { display: flex; gap: 0.45rem; align-items: center; }
+.left-section { display: flex; gap: 0.35rem; align-items: center; }
 .header-btn {
-  display: flex; align-items: center; gap: 0.45rem;
-  padding: 0.5rem 0.75rem; border-radius: 12px;
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.45rem 0.65rem; border-radius: 12px;
   color: var(--color-text-light); font-weight: 600;
   text-decoration: none; background: transparent; border: none;
   cursor: pointer; min-width: auto !important;
@@ -409,11 +414,11 @@ const startQuiz = (level, unitColor) => {
 .logout-btn { color: var(--color-danger); }
 .logout-btn:hover { background-color: #fee2e2; color: #e53935; }
 
-.stats-bar { display: flex; gap: 1.4rem; }
-.stat-item { display: flex; align-items: center; gap: 0.45rem; font-weight: 700; color: #afafaf; cursor: default; }
-.icon-fire { color: #ff9600; font-size: 1.2rem; }
-.icon-gem { color: #1cb0f6; font-size: 1.2rem; }
-.flag-icon { font-size: 1.2rem; }
+.stats-bar { display: flex; gap: 1.2rem; align-items: center; }
+.stat-item { display: flex; align-items: center; gap: 0.35rem; font-weight: 700; color: #afafaf; cursor: default; }
+.icon-fire { color: #ff9600; font-size: 1.15rem; }
+.icon-gem { color: #1cb0f6; font-size: 1.15rem; }
+.flag-icon { font-size: 1.15rem; }
 
 .dashboard-main { flex: 1; max-width: 1050px; width: 100%; margin: 0 auto; padding: 2rem 1rem; display: flex; gap: 2.5rem; box-sizing: border-box; }
 .learning-path-column { flex: 1; }
@@ -458,6 +463,7 @@ const startQuiz = (level, unitColor) => {
   width: 78px; height: 78px; border-radius: 50%; border: none;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: transform 0.1s; font-size: 1.9rem;
+  min-width: 0 !important;
 }
 .level-button:active:not(:disabled) { transform: translateY(4px); }
 .level-title { font-weight: 800; font-size: 0.9rem; color: #4b5563; }
@@ -521,7 +527,21 @@ const startQuiz = (level, unitColor) => {
 @media (max-width: 850px) {
   .dashboard-main { flex-direction: column-reverse; padding-bottom: 100px; }
   .sidebar-column { width: 100%; }
-  .desktop-only, .btn-label, .logo-container { display: none; }
-  .dashboard-topbar { padding: 0.8rem 1rem; }
+  .desktop-only, .btn-label { display: none; }
+  .dashboard-topbar { padding: 0.65rem 0.85rem; }
+  .logo-text { font-size: 1rem; }
+  .logo-icon { font-size: 1.15rem; }
+  .stats-bar { gap: 0.75rem; font-size: 0.9rem; }
+  .header-btn { padding: 0.35rem 0.45rem; }
+}
+
+@media (max-width: 420px) {
+  .logo-text { display: none; }
+  .logo-icon {
+    font-size: 1.25rem;
+    background: #e1f5fe;
+    padding: 0.4rem;
+    border-radius: 10px;
+  }
 }
 </style>

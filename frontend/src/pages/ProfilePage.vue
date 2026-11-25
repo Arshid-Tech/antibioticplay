@@ -19,15 +19,15 @@
       <div class="stats-overview">
         <div class="stat-box">
           <span class="stat-label">سطح</span>
-          <span class="stat-value">{{ authStore.user?.level || 1 }}</span>
+          <span class="stat-value">{{ toFa(authStore.user?.level || 1) }}</span>
         </div>
         <div class="stat-box">
           <span class="stat-label">امتیاز کل</span>
-          <span class="stat-value">{{ authStore.user?.score || 0 }}</span>
+          <span class="stat-value">{{ toFa(authStore.user?.score || 0) }}</span>
         </div>
         <div class="stat-box">
           <span class="stat-label">آزمون‌ها</span>
-          <span class="stat-value">{{ authStore.user?.quizzes_completed || 0 }}</span>
+          <span class="stat-value">{{ toFa(authStore.user?.quizzes_completed || 0) }}</span>
         </div>
       </div>
     </div>
@@ -48,7 +48,7 @@
               </span>
               <div class="rank-display">
                 <span class="label">رتبه شما:</span>
-                <span class="value" v-if="userRank">#{{ userRank }}</span>
+                <span class="value" v-if="userRank">#{{ toFa(userRank) }}</span>
                 <span class="value" v-else>...</span>
               </div>
             </div>
@@ -74,6 +74,52 @@
             <p>هنوز نشانی کسب نکرده‌اید.</p>
             <router-link to="/dashboard" class="btn-text">شروع یادگیری</router-link>
           </div>
+        </div>
+
+        <!-- کارت تغییر رمز عبور -->
+        <div class="info-card card password-card">
+          <h3>تغییر رمز عبور</h3>
+          <form @submit.prevent="handleChangePassword" class="password-form">
+            <div class="pw-field">
+              <label for="current-pw">رمز عبور فعلی</label>
+              <input
+                id="current-pw"
+                v-model="pwForm.currentPassword"
+                type="password"
+                placeholder="رمز عبور فعلی خود را وارد کنید"
+                dir="ltr"
+                required
+              />
+            </div>
+            <div class="pw-field">
+              <label for="new-pw">رمز عبور جدید</label>
+              <input
+                id="new-pw"
+                v-model="pwForm.newPassword"
+                type="password"
+                placeholder="حداقل ۶ کاراکتر"
+                minlength="6"
+                dir="ltr"
+                required
+              />
+            </div>
+            <div class="pw-field">
+              <label for="confirm-pw">تکرار رمز عبور جدید</label>
+              <input
+                id="confirm-pw"
+                v-model="pwForm.confirmPassword"
+                type="password"
+                placeholder="تکرار رمز عبور جدید"
+                minlength="6"
+                dir="ltr"
+                required
+              />
+            </div>
+            <p v-if="pwError" class="pw-error">{{ pwError }}</p>
+            <button type="submit" class="btn btn-primary btn-block" :disabled="changingPassword">
+              {{ changingPassword ? 'در حال ثبت...' : 'تغییر رمز عبور' }}
+            </button>
+          </form>
         </div>
       </div>
 
@@ -118,7 +164,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useNotificationStore } from '../stores/notificationStore';
 import api from '../services/api';
@@ -135,6 +181,19 @@ const selectedAvatar = ref('');
 const isSaving = ref(false);
 const earnedBadgesList = ref([]);
 const userRank = ref(null);
+
+const changingPassword = ref(false);
+const pwError = ref('');
+const pwForm = reactive({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+});
+
+const toFa = (val) => {
+  if (val === null || val === undefined) return '';
+  return String(val).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+};
 
 const avatars = [
   { id: 'fleming', name: 'الکساندر فلمینگ', role: 'کاشف پنی‌سیلین', image: '/avatars/avatar_fleming.png' },
@@ -214,59 +273,116 @@ const saveAvatar = async () => {
     isSaving.value = false;
   }
 };
+
+const handleChangePassword = async () => {
+  pwError.value = '';
+  if (pwForm.newPassword.length < 6) {
+    pwError.value = 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.';
+    return;
+  }
+  if (pwForm.newPassword !== pwForm.confirmPassword) {
+    pwError.value = 'رمز عبور جدید و تکرار آن یکسان نیستند.';
+    return;
+  }
+
+  changingPassword.value = true;
+  try {
+    const res = await api.post('/auth/change-password', {
+      current_password: pwForm.currentPassword,
+      new_password: pwForm.newPassword,
+    });
+    pwForm.currentPassword = '';
+    pwForm.newPassword = '';
+    pwForm.confirmPassword = '';
+    notificationStore.showNotification({
+      title: '🔒 رمز عبور تغییر یافت',
+      message: res.data?.message || 'رمز عبور شما با موفقیت بروزرسانی شد.',
+    });
+  } catch (err) {
+    pwError.value = err.response?.data?.message || 'خطا در تغییر رمز عبور.';
+  } finally {
+    changingPassword.value = false;
+  }
+};
 </script>
 
 <style scoped>
-.page-container { padding: 2rem; max-width: 1000px; margin: 0 auto; min-height: 100vh; padding-bottom: 95px; }
-.page-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+.page-container { padding: 1.5rem 1rem; max-width: 1000px; margin: 0 auto; min-height: 100vh; padding-bottom: 95px; box-sizing: border-box; }
+.page-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
 .back-btn { color: var(--color-text-light); text-decoration: none; font-weight: bold; }
-h1 { margin: 0; font-size: 1.8rem; color: var(--color-text); }
+h1 { margin: 0; font-size: 1.5rem; color: var(--color-text); }
 
-.card { background: white; border: 2px solid #e5e5e5; border-radius: 16px; padding: 1.5rem; }
+.card { background: white; border: 2px solid #e5e5e5; border-radius: 16px; padding: 1.35rem; box-sizing: border-box; }
 
-.profile-header-card { display: flex; flex-direction: column; gap: 2rem; margin-bottom: 2rem; background: linear-gradient(135deg, white, #f0f7ff); border-color: var(--color-primary-light); }
-.profile-avatar-section { display: flex; align-items: center; gap: 1.5rem; }
-.avatar-img-lg { width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background-color: #eee; object-fit: cover; }
-.profile-names h2 { margin: 0; font-size: 1.8rem; color: var(--color-primary); }
-.email-text { color: var(--color-text-light); font-size: 1rem; }
+.profile-header-card { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, white, #f0f7ff); border-color: var(--color-primary-light); }
+.profile-avatar-section { display: flex; align-items: center; gap: 1.25rem; }
+.avatar-img-lg { width: 92px; height: 92px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background-color: #eee; object-fit: cover; }
+.profile-names h2 { margin: 0; font-size: 1.55rem; color: var(--color-primary); }
+.email-text { color: var(--color-text-light); font-size: 0.92rem; word-break: break-all; }
 
-.stats-overview { display: flex; gap: 3rem; padding-top: 1rem; border-top: 2px solid rgba(0,0,0,0.05); }
-.stat-box { display: flex; flex-direction: column; gap: 0.3rem; }
-.stat-label { font-size: 0.9rem; color: var(--color-text-light); font-weight: bold; }
-.stat-value { font-size: 1.4rem; font-weight: 800; color: var(--color-text); }
+.stats-overview { display: flex; gap: 2.5rem; padding-top: 1rem; border-top: 2px solid rgba(0,0,0,0.05); }
+.stat-box { display: flex; flex-direction: column; gap: 0.25rem; }
+.stat-label { font-size: 0.85rem; color: var(--color-text-light); font-weight: bold; }
+.stat-value { font-size: 1.35rem; font-weight: 800; color: var(--color-text); }
 
-.content-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; }
-.info-column { display: flex; flex-direction: column; gap: 2rem; }
-.info-card h3 { margin: 0 0 1rem; font-size: 1.1rem; color: var(--color-text-light); }
+.content-grid { display: grid; grid-template-columns: 1fr 1.45fr; gap: 1.5rem; }
+.info-column { display: flex; flex-direction: column; gap: 1.5rem; }
+.info-card h3 { margin: 0 0 1rem; font-size: 1.05rem; color: var(--color-text-light); }
 
 .league-details { display: flex; align-items: center; gap: 1rem; }
-.league-icon-big { font-size: 3.5rem; }
+.league-icon-big { font-size: 3.2rem; }
 .league-text { display: flex; flex-direction: column; }
-.league-name { font-size: 1.4rem; font-weight: 900; }
-.rank-display { margin-top: 0.2rem; font-size: 1rem; color: var(--color-text); }
-.rank-display .value { font-weight: bold; margin-right: 0.3rem; font-size: 1.2rem; }
+.league-name { font-size: 1.3rem; font-weight: 900; }
+.rank-display { margin-top: 0.2rem; font-size: 0.95rem; color: var(--color-text); }
+.rank-display .value { font-weight: bold; margin-right: 0.3rem; font-size: 1.15rem; }
 
 .badges-grid-profile { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 1rem; }
 .badge-item { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; }
-.badge-icon-wrapper { width: 60px; height: 60px; background-color: #fff9c4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #fbc02d; border: 2px solid #fbc02d; }
+.badge-icon-wrapper { width: 58px; height: 58px; background-color: #fff9c4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: #fbc02d; border: 2px solid #fbc02d; }
 .badge-name { font-size: 0.8rem; color: var(--color-text); font-weight: bold; }
 .empty-badges { text-align: center; padding: 1rem; color: var(--color-text-light); }
 
-.selection-card h3 { margin-top: 0; }
-.avatars-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-top: 1.5rem; max-height: 500px; overflow-y: auto; padding-right: 0.5rem; }
+/* Change Password Card */
+.password-form { display: flex; flex-direction: column; gap: 0.85rem; }
+.pw-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.pw-field label { font-size: 0.86rem; font-weight: 700; color: var(--color-text); }
+.pw-field input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  background: #fafafa;
+}
+.pw-field input:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+  background: #fff;
+}
+.pw-error {
+  margin: 0;
+  color: #c62828;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
 
-.avatar-item { cursor: pointer; border: 2px solid transparent; border-radius: 12px; padding: 1rem; text-align: center; position: relative; transition: all 0.2s; background: #f9f9f9; }
+/* Avatar Selection */
+.selection-card h3 { margin-top: 0; }
+.avatars-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 0.9rem; margin-top: 1.25rem; max-height: 520px; overflow-y: auto; padding-right: 0.25rem; }
+
+.avatar-item { cursor: pointer; border: 2px solid transparent; border-radius: 12px; padding: 0.9rem; text-align: center; position: relative; transition: all 0.2s; background: #f9f9f9; }
 .avatar-item:hover { background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
 .avatar-item.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); }
 
-.avatar-img-sm { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; margin-bottom: 0.5rem; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.avatar-meta h4 { font-size: 0.9rem; margin: 0.5rem 0 0.2rem; color: var(--color-text); }
-.avatar-meta p { font-size: 0.75rem; color: var(--color-text-light); margin: 0; line-height: 1.2; }
+.avatar-img-sm { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; margin-bottom: 0.45rem; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.avatar-meta h4 { font-size: 0.88rem; margin: 0.4rem 0 0.2rem; color: var(--color-text); }
+.avatar-meta p { font-size: 0.74rem; color: var(--color-text-light); margin: 0; line-height: 1.25; }
 
-.check-icon { position: absolute; top: 8px; right: 8px; color: var(--color-primary); font-size: 1.2rem; background: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+.check-icon { position: absolute; top: 8px; right: 8px; color: var(--color-primary); font-size: 1.15rem; background: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
 
-.actions { margin-top: 2rem; }
-.btn-block { width: 100%; padding: 0.8rem; font-size: 1rem; }
+.actions { margin-top: 1.5rem; }
+.btn-block { width: 100%; padding: 0.8rem; font-size: 0.98rem; }
 
 @media (max-width: 850px) {
   .content-grid { grid-template-columns: 1fr; }
