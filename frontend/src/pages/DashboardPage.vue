@@ -3,7 +3,7 @@
     <header class="dashboard-topbar">
       <div class="topbar-content">
         <div class="right-section">
-          <router-link to="/" class="dashboard-logo-link">
+          <router-link to="/" class="dashboard-logo-link" title="صفحه اصلی سایت">
             <div class="logo-container">
               <font-awesome-icon icon="fas fa-microscope" class="logo-icon" />
               <h2 class="logo-text">AntibioticPlay</h2>
@@ -16,7 +16,7 @@
             <font-awesome-icon
               :icon="user?.league?.icon || 'fas fa-medal'"
               class="flag-icon"
-              :style="{ color: user?.league?.color || '#cd7f32' }"
+              :style="{ color: user?.league?.color || '#b45309' }"
             />
             <span class="desktop-only">{{ user?.league?.name || 'برنز' }}</span>
           </div>
@@ -27,13 +27,13 @@
               class="icon-fire"
               :class="{ 'animate-fire': (user?.correct_streak || 0) > 0 }"
             />
-            <span>{{ user?.correct_streak || 0 }}</span>
+            <span>{{ toFa(user?.correct_streak || 0) }}</span>
           </div>
 
           <div class="stat-item" title="امتیاز کل">
             <font-awesome-icon icon="fas fa-star" class="icon-gem" />
             <span :class="{ 'score-pop-animation': scoreJustUpdated }">
-              {{ score || 0 }}
+              {{ toFa(score || 0) }}
             </span>
           </div>
         </div>
@@ -74,14 +74,14 @@
 
     <main class="dashboard-main">
       <div class="learning-path-column">
-        <!-- بنر دعوت به پرسشنامه داخلی MEEGA+ پس از تکمیل حداقل مراحل -->
+        <!-- بنر دعوت به پرسشنامه داخلی MEEGA+ -->
         <div
           v-if="surveyStatus && !surveyStatus.submitted && surveyStatus.eligible"
           class="survey-invite-banner"
         >
           <div class="survey-invite-text">
-            <strong>📋 نظرتان درباره AntibioticPlay چیست؟</strong>
-            <p>با تکمیل پرسشنامه ۲ دقیقه‌ای ارزشیابی، <strong>+۵۰ XP</strong> هدیه بگیرید.</p>
+            <strong>نظرتان درباره AntibioticPlay چیست؟</strong>
+            <p>با تکمیل پرسشنامه ارزشیابی، <strong>+۵۰ XP</strong> دریافت کنید.</p>
           </div>
           <router-link to="/survey" class="btn btn-primary survey-cta">
             تکمیل پرسشنامه
@@ -97,13 +97,13 @@
             v-for="(unit, uIndex) in quizStore.modules"
             :key="unit.id"
             class="unit-card"
-            :style="{ borderColor: unit.color || getModuleColor(uIndex) }"
+            :style="{ borderColor: getModuleColor(uIndex) }"
           >
             <header
               class="unit-header"
-              :style="{ backgroundColor: unit.color || getModuleColor(uIndex) }"
+              :style="{ backgroundColor: getModuleColor(uIndex) }"
             >
-              <h3>بخش {{ uIndex + 1 }}: {{ unit.title }}</h3>
+              <h3>بخش {{ toFa(uIndex + 1) }}: {{ unit.title }}</h3>
               <p>{{ unit.description }}</p>
             </header>
 
@@ -119,8 +119,8 @@
               >
                 <button
                   class="level-button"
-                  :style="getLevelButtonStyle(level, unit.color || getModuleColor(uIndex))"
-                  @click="startQuiz(level, unit.color || getModuleColor(uIndex))"
+                  :style="getLevelButtonStyle(level, getModuleColor(uIndex))"
+                  @click="startQuiz(level, getModuleColor(uIndex))"
                   :disabled="level.is_locked"
                 >
                   <font-awesome-icon v-if="level.is_completed" icon="fas fa-check" class="check-icon" />
@@ -179,14 +179,14 @@
           </div>
 
           <div v-if="userRank" class="league-status">
-            <div class="league-icon-large" :style="{ color: user?.league?.color || '#cd7f32' }">
+            <div class="league-icon-large" :style="{ color: user?.league?.color || '#b45309' }">
               <font-awesome-icon :icon="user?.league?.icon || 'fas fa-medal'" />
             </div>
             <div class="rank-info">
               <span class="rank-label">رتبه شما</span>
-              <span class="rank-value">#{{ userRank }}</span>
+              <span class="rank-value">#{{ toFa(userRank) }}</span>
             </div>
-            <div class="xp-info">{{ score }} XP</div>
+            <div class="xp-info">{{ toFa(score) }} XP</div>
           </div>
           <div v-else class="league-placeholder">
             <font-awesome-icon icon="fas fa-trophy" class="league-icon-gray" />
@@ -209,7 +209,7 @@
               <font-awesome-icon :icon="badge.icon.split(' ')" />
             </div>
             <div v-if="earnedBadges.length > 4" class="more-badges">
-              +{{ earnedBadges.length - 4 }}
+              +{{ toFa(earnedBadges.length - 4) }}
             </div>
           </div>
           <div v-else class="empty-state">هنوز نشانی کسب نکرده‌اید.</div>
@@ -272,7 +272,13 @@ const scoreJustUpdated = ref(false);
 const userRank = ref(null);
 const surveyStatus = ref(null);
 
-const moduleColors = ['#0288d1', '#009688', '#5e35b1', '#43a047', '#e53935'];
+const toFa = (val) => {
+  if (val === null || val === undefined) return '';
+  return String(val).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+};
+
+// Cohesive Clinical Palette (Teal, Medical Navy, Clinical Amber, Surgical Slate)
+const moduleColors = ['#0f766e', '#1d5c8c', '#b45309', '#2b6cb0', '#9b2c2c'];
 const getModuleColor = (index) => moduleColors[index % moduleColors.length];
 
 const cleanIconName = (iconName) => {
@@ -299,22 +305,22 @@ const adjustColor = (color, amount) => {
 const getLevelButtonStyle = (level, unitColor) => {
   if (level.is_locked) {
     return {
-      backgroundColor: '#e5e5e5',
+      backgroundColor: '#e2e8f0',
       boxShadow: 'none',
       cursor: 'not-allowed',
-      color: '#afafaf',
+      color: '#94a3b8',
     };
   }
   if (level.is_completed) {
     return {
-      backgroundColor: '#ffc107',
-      boxShadow: '0 6px 0 #d39e00',
+      backgroundColor: '#d97706',
+      boxShadow: '0 6px 0 #a35504',
       color: 'white',
     };
   }
   return {
     backgroundColor: unitColor,
-    boxShadow: `0 6px 0 ${adjustColor(unitColor, -40)}`,
+    boxShadow: `0 6px 0 ${adjustColor(unitColor, -38)}`,
     color: 'white',
   };
 };
@@ -378,52 +384,58 @@ const startQuiz = (level, unitColor) => {
 </script>
 
 <style scoped>
-.dashboard-layout { min-height: 100vh; background-color: white; display: flex; flex-direction: column; }
+.dashboard-layout { min-height: 100vh; background-color: var(--color-background-page); display: flex; flex-direction: column; }
 
-.dashboard-topbar { background-color: white; border-bottom: 2px solid #e5e5e5; position: sticky; top: 0; z-index: 100; padding: 0.8rem 2rem; }
-.topbar-content { max-width: 1050px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.dashboard-topbar { background-color: #ffffff; border-bottom: 2px solid var(--color-border); position: sticky; top: 0; z-index: 100; padding: 0.75rem 2rem; }
+.topbar-content { max-width: 1050px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
 
-.dashboard-logo-link { text-decoration: none; display: inline-block; }
+.dashboard-logo-link { text-decoration: none; display: inline-flex; align-items: center; }
 .logo-container { display: flex; align-items: center; gap: 0.5rem; }
-.logo-icon { font-size: 1.4rem; color: var(--color-primary); }
+.logo-icon {
+  font-size: 1.25rem;
+  color: #ffffff;
+  background-color: var(--color-primary);
+  padding: 0.42rem;
+  border-radius: 10px;
+}
 .logo-text {
-  background: linear-gradient(45deg, var(--color-primary), #2c3e50);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 800;
-  font-size: 1.4rem;
+  color: var(--color-text);
+  font-weight: 900;
+  font-size: 1.25rem;
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
-.left-section { display: flex; gap: 0.45rem; align-items: center; }
+.left-section { display: flex; gap: 0.35rem; align-items: center; }
 .header-btn {
-  display: flex; align-items: center; gap: 0.45rem;
-  padding: 0.5rem 0.75rem; border-radius: 12px;
-  color: var(--color-text-light); font-weight: 600;
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.45rem 0.65rem; border-radius: 12px;
+  color: var(--color-text-light); font-weight: 700;
   text-decoration: none; background: transparent; border: none;
   cursor: pointer; min-width: auto !important;
 }
-.header-btn:hover { background-color: #f0f0f0; color: var(--color-text); }
-.admin-btn { color: #5e35b1; }
-.btn-label { font-size: 0.88rem; }
+.header-btn:hover { background-color: var(--color-background-off); color: var(--color-text); }
+.admin-btn { color: var(--color-secondary); }
+.btn-label { font-size: 0.86rem; }
 .logout-btn { color: var(--color-danger); }
-.logout-btn:hover { background-color: #fee2e2; color: #e53935; }
+.logout-btn:hover { background-color: var(--color-danger-light); color: var(--color-danger-dark); }
 
-.stats-bar { display: flex; gap: 1.4rem; }
-.stat-item { display: flex; align-items: center; gap: 0.45rem; font-weight: 700; color: #afafaf; cursor: default; }
-.icon-fire { color: #ff9600; font-size: 1.2rem; }
-.icon-gem { color: #1cb0f6; font-size: 1.2rem; }
-.flag-icon { font-size: 1.2rem; }
+.stats-bar { display: flex; gap: 1.2rem; align-items: center; }
+.stat-item { display: flex; align-items: center; gap: 0.35rem; font-weight: 800; color: var(--color-text-light); cursor: default; }
+.icon-fire { color: var(--color-warning); font-size: 1.15rem; }
+.icon-gem { color: var(--color-secondary); font-size: 1.15rem; }
+.flag-icon { font-size: 1.15rem; }
 
-.dashboard-main { flex: 1; max-width: 1050px; width: 100%; margin: 0 auto; padding: 2rem 1rem; display: flex; gap: 2.5rem; box-sizing: border-box; }
+.dashboard-main { flex: 1; max-width: 1050px; width: 100%; margin: 0 auto; padding: 1.75rem 1rem; display: flex; gap: 2.25rem; box-sizing: border-box; }
 .learning-path-column { flex: 1; }
 
-/* Survey Invite Banner */
+/* Survey Invite Banner - Crisp Clinical Card */
 .survey-invite-banner {
-  background: linear-gradient(135deg, #e1f5fe, #e0f2f1);
-  border: 2px solid #81d4fa;
+  background-color: var(--color-primary-light);
+  border: 2px solid #99d5cc;
+  border-bottom-width: 4px;
   border-radius: 18px;
-  padding: 1.1rem 1.35rem;
+  padding: 1.1rem 1.3rem;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
@@ -431,23 +443,23 @@ const startQuiz = (level, unitColor) => {
   gap: 1rem;
   flex-wrap: wrap;
 }
-.survey-invite-text strong { display: block; color: #01579b; font-size: 1rem; margin-bottom: 0.2rem; }
-.survey-invite-text p { margin: 0; font-size: 0.88rem; color: #37474f; }
-.survey-cta { padding: 0.65rem 1.2rem; font-size: 0.9rem; white-space: nowrap; }
+.survey-invite-text strong { display: block; color: var(--color-primary-dark); font-size: 0.98rem; margin-bottom: 0.2rem; }
+.survey-invite-text p { margin: 0; font-size: 0.86rem; color: var(--color-text); }
+.survey-cta { padding: 0.6rem 1.15rem; font-size: 0.88rem; white-space: nowrap; }
 
 /* Unit Cards & Path */
-.unit-card { border: 2px solid; border-radius: 20px; overflow: hidden; margin-bottom: 2rem; text-align: right; }
-.unit-header { padding: 1.35rem 1.5rem; color: white; }
-.unit-header h3 { margin: 0 0 0.35rem; font-size: 1.3rem; }
-.unit-header p { margin: 0; opacity: 0.92; font-size: 0.92rem; }
+.unit-card { border: 2px solid; border-bottom-width: 4px; border-radius: 20px; overflow: hidden; margin-bottom: 1.75rem; text-align: right; background: #ffffff; }
+.unit-header { padding: 1.25rem 1.5rem; color: #ffffff; }
+.unit-header h3 { margin: 0 0 0.3rem; font-size: 1.22rem; color: #ffffff; }
+.unit-header p { margin: 0; opacity: 0.92; font-size: 0.9rem; }
 
 .levels-path {
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.6rem;
-  background-color: white;
+  gap: 1.65rem;
+  background-color: #ffffff;
 }
 
 .level-node-wrapper { display: flex; flex-direction: column; align-items: center; gap: 0.55rem; }
@@ -457,71 +469,81 @@ const startQuiz = (level, unitColor) => {
 .level-button {
   width: 78px; height: 78px; border-radius: 50%; border: none;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: transform 0.1s; font-size: 1.9rem;
+  cursor: pointer; transition: transform 0.1s; font-size: 1.85rem;
+  min-width: 0 !important;
 }
 .level-button:active:not(:disabled) { transform: translateY(4px); }
-.level-title { font-weight: 800; font-size: 0.9rem; color: #4b5563; }
+.level-title { font-weight: 800; font-size: 0.9rem; color: var(--color-text); }
 
 .level-node-wrapper.locked .level-button {
-  background-color: #e5e5e5 !important;
-  box-shadow: 0 4px 0 #ccc !important;
+  background-color: #e2e8f0 !important;
+  box-shadow: 0 4px 0 #cbd5e1 !important;
   transform: none !important;
 }
-.level-node-wrapper.locked .level-title { color: #aaa; }
-.lock-icon { font-size: 1.4rem; opacity: 0.6; }
+.level-node-wrapper.locked .level-title { color: #94a3b8; }
+.lock-icon { font-size: 1.35rem; opacity: 0.7; }
 
 /* Sidebar */
-.sidebar-column { width: 340px; display: flex; flex-direction: column; gap: 1.25rem; }
-.sidebar-widget { border: 2px solid #e5e5e5; border-radius: 16px; padding: 1.25rem; background-color: white; }
+.sidebar-column { width: 340px; display: flex; flex-direction: column; gap: 1.2rem; }
+.sidebar-widget { border: 2px solid var(--color-border); border-bottom-width: 4px; border-radius: 18px; padding: 1.25rem; background-color: #ffffff; }
 
 .user-widget { display: flex; align-items: center; gap: 1rem; }
 .user-avatar-img-container {
-  width: 68px; height: 68px; border-radius: 50%; overflow: hidden;
+  width: 66px; height: 66px; border-radius: 50%; overflow: hidden;
   border: 3px solid var(--color-primary); background-color: white; flex-shrink: 0;
 }
 .sidebar-avatar { width: 100%; height: 100%; object-fit: cover; }
-.user-info h3 { margin: 0; font-size: 1.12rem; }
-.user-email { margin: 0.15rem 0 0.45rem; color: var(--color-text-light); font-size: 0.85rem; }
+.user-info h3 { margin: 0; font-size: 1.08rem; }
+.user-email { margin: 0.15rem 0 0.45rem; color: var(--color-text-light); font-size: 0.84rem; }
 .profile-link-btn {
   font-size: 0.84rem; color: var(--color-secondary); text-decoration: none;
-  font-weight: bold; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-weight: 800; display: inline-flex; align-items: center; gap: 0.35rem;
 }
 
-/* Tools Widget */
+/* Tools Widget - Tactile Clinical Buttons */
 .tools-stack { display: flex; flex-direction: column; gap: 0.65rem; }
 .tool-btn {
   display: flex; align-items: center; gap: 0.65rem;
-  padding: 0.75rem 1rem; border-radius: 12px;
-  text-decoration: none; font-weight: 800; font-size: 0.9rem;
-  border: 2px solid transparent; transition: transform 0.15s;
+  padding: 0.75rem 1rem; border-radius: 14px;
+  text-decoration: none; font-weight: 800; font-size: 0.88rem;
+  border: 2px solid transparent; border-bottom-width: 4px;
+  transition: transform 0.08s ease;
 }
-.tool-btn:hover { transform: translateY(-2px); }
-.tool-flashcards { background: #e0f2f1; color: #00695c; border-color: #80cbc4; }
-.tool-daily { background: #fff3e0; color: #e65100; border-color: #ffcc80; }
-.tool-review { background: #e3f2fd; color: #0277bd; border-color: #90caf9; }
+.tool-btn:active { transform: translateY(2px); border-bottom-width: 2px; }
+.tool-flashcards { background: var(--color-primary-light); color: var(--color-primary-dark); border-color: #99d5cc; border-bottom-color: #5eb8ac; }
+.tool-daily { background: var(--color-warning-light); color: var(--color-warning-dark); border-color: #f6d38b; border-bottom-color: #e2aa42; }
+.tool-review { background: var(--color-secondary-light); color: var(--color-secondary-dark); border-color: #b2cde3; border-bottom-color: #7ea8cc; }
 
 .widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
-.widget-header h3 { margin: 0; color: var(--color-text); font-size: 1.05rem; }
-.link-text { color: var(--color-secondary); text-decoration: none; font-weight: 700; font-size: 0.88rem; }
+.widget-header h3 { margin: 0; color: var(--color-text); font-size: 1rem; }
+.link-text { color: var(--color-secondary); text-decoration: none; font-weight: 800; font-size: 0.86rem; }
 
 .league-status { display: flex; align-items: center; gap: 1rem; }
-.league-icon-large { font-size: 2.8rem; }
+.league-icon-large { font-size: 2.6rem; }
 .rank-info { flex: 1; display: flex; flex-direction: column; }
 .rank-label { font-size: 0.78rem; color: var(--color-text-light); font-weight: 700; }
-.rank-value { font-size: 1.65rem; font-weight: 800; color: var(--color-text); }
-.xp-info { font-weight: 700; color: var(--color-text-light); background: #f0f0f0; padding: 0.2rem 0.6rem; border-radius: 8px; font-size: 0.88rem; }
+.rank-value { font-size: 1.6rem; font-weight: 900; color: var(--color-text); }
+.xp-info { font-weight: 800; color: var(--color-text); background: var(--color-background-off); padding: 0.25rem 0.65rem; border-radius: 8px; font-size: 0.86rem; }
 .league-placeholder { text-align: center; color: var(--color-text-light); }
-.league-icon-gray { font-size: 2.5rem; color: #e5e5e5; margin-bottom: 0.4rem; }
+.league-icon-gray { font-size: 2.4rem; color: var(--color-border-strong); margin-bottom: 0.4rem; }
 
 .badges-mini-grid { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.mini-badge { width: 48px; height: 48px; background-color: #f7f7f7; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--color-warning); font-size: 1.4rem; }
-.more-badges { width: 48px; height: 48px; background-color: #e5e5e5; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; color: var(--color-text-light); }
-.empty-state { color: var(--color-text-light); font-size: 0.88rem; }
+.mini-badge { width: 46px; height: 46px; background-color: var(--color-warning-light); border: 2px solid #f6d38b; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--color-warning-dark); font-size: 1.3rem; }
+.more-badges { width: 46px; height: 46px; background-color: var(--color-background-off); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; color: var(--color-text-light); }
+.empty-state { color: var(--color-text-light); font-size: 0.86rem; }
 
 @media (max-width: 850px) {
   .dashboard-main { flex-direction: column-reverse; padding-bottom: 100px; }
   .sidebar-column { width: 100%; }
-  .desktop-only, .btn-label, .logo-container { display: none; }
-  .dashboard-topbar { padding: 0.8rem 1rem; }
+  .desktop-only, .btn-label { display: none; }
+  .dashboard-topbar { padding: 0.65rem 0.85rem; }
+  .logo-text { font-size: 1rem; }
+  .logo-icon { font-size: 1.1rem; }
+  .stats-bar { gap: 0.75rem; font-size: 0.9rem; }
+  .header-btn { padding: 0.35rem 0.45rem; }
+}
+
+@media (max-width: 420px) {
+  .logo-text { display: none; }
 }
 </style>

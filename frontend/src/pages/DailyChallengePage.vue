@@ -6,7 +6,7 @@
           <font-awesome-icon icon="fas fa-arrow-right" />
         </router-link>
         <div>
-          <h1>⚡ چالش روزانه آنتی‌بیوتیک</h1>
+          <h1>چالش روزانه آنتی‌بیوتیک</h1>
           <p>۵ سوال تصادفی امروز با پاداش ویژه XP</p>
         </div>
       </div>
@@ -16,19 +16,21 @@
       <div v-if="loading" class="state-card">در حال آماده‌سازی چالش امروز...</div>
 
       <div v-else-if="finished" class="state-card finish-card">
-        <div class="trophy">🏆</div>
+        <div class="finish-icon-circle">
+          <font-awesome-icon icon="fas fa-trophy" />
+        </div>
         <h2>چالش روزانه کامل شد!</h2>
         <p>
-          شما به <strong>{{ correctCount }}</strong> از <strong>{{ questions.length }}</strong> سوال
-          پاسخ صحیح دادید و <strong>+{{ totalXpEarned }} XP</strong> پاداش گرفتید.
+          شما به <strong>{{ toFa(correctCount) }}</strong> از <strong>{{ toFa(questions.length) }}</strong> سوال
+          پاسخ صحیح دادید و <strong>+{{ toFa(totalXpEarned) }} XP</strong> پاداش گرفتید.
         </p>
         <router-link to="/dashboard" class="btn btn-primary">بازگشت به داشبورد</router-link>
       </div>
 
       <div v-else-if="currentQuestion" class="question-wrapper">
         <div class="progress-row">
-          <span>سوال {{ currentIndex + 1 }} از {{ questions.length }}</span>
-          <span class="xp-pill">+{{ totalXpEarned }} XP</span>
+          <span>سوال {{ toFa(currentIndex + 1) }} از {{ toFa(questions.length) }}</span>
+          <span class="xp-pill">+{{ toFa(totalXpEarned) }} XP</span>
         </div>
         <div class="progress-bar-bg">
           <div
@@ -48,7 +50,7 @@
         />
 
         <div v-if="state !== 'answering'" class="feedback-box" :class="state">
-          <strong>{{ state === 'correct' ? '✅ پاسخ صحیح!' : '❌ پاسخ نادرست' }}</strong>
+          <strong>{{ state === 'correct' ? 'پاسخ صحیح' : 'پاسخ نادرست' }}</strong>
           <p v-if="explanation">{{ explanation }}</p>
         </div>
 
@@ -86,9 +88,9 @@ import DragDropFill from '../components/DragDropFill.vue';
 import ImageLabeling from '../components/ImageLabeling.vue';
 import ClinicalCase from '../components/ClinicalCase.vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faTrophy } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faArrowRight);
+library.add(faArrowRight, faTrophy);
 
 const authStore = useAuthStore();
 
@@ -98,10 +100,15 @@ const currentIndex = ref(0);
 const userAnswer = ref(null);
 const feedback = ref({});
 const explanation = ref('');
-const state = ref('answering'); // answering | correct | incorrect
+const state = ref('answering');
 const finished = ref(false);
 const correctCount = ref(0);
 const totalXpEarned = ref(0);
+
+const toFa = (val) => {
+  if (val === null || val === undefined) return '';
+  return String(val).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+};
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] || null);
 
@@ -174,15 +181,16 @@ const nextQuestion = () => {
 <style scoped>
 .daily-page {
   min-height: 100vh;
-  background: #f6f8fb;
+  background: var(--color-background-page);
   direction: rtl;
   padding-bottom: 3rem;
 }
 
 .daily-header {
-  background: linear-gradient(135deg, #ff9600, #ff6f00);
+  background-color: var(--color-warning-dark);
+  border-bottom: 4px solid #8a3f06;
   color: #fff;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
 }
 
 .header-inner {
@@ -196,8 +204,8 @@ const nextQuestion = () => {
 .back-btn {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
   display: flex;
   align-items: center;
@@ -205,16 +213,8 @@ const nextQuestion = () => {
   text-decoration: none;
 }
 
-.daily-header h1 {
-  margin: 0;
-  font-size: 1.25rem;
-}
-
-.daily-header p {
-  margin: 0.15rem 0 0;
-  font-size: 0.85rem;
-  opacity: 0.92;
-}
+.daily-header h1 { margin: 0; font-size: 1.2rem; color: #fff; }
+.daily-header p { margin: 0.15rem 0 0; font-size: 0.84rem; opacity: 0.92; }
 
 .daily-body {
   max-width: 820px;
@@ -224,20 +224,30 @@ const nextQuestion = () => {
 
 .state-card {
   background: #fff;
-  border: 2px solid #e5e5e5;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 20px;
   padding: 2.5rem 1.5rem;
   text-align: center;
 }
 
-.trophy {
-  font-size: 3.5rem;
-  margin-bottom: 0.5rem;
+.finish-icon-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+  font-size: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
 }
 
 .question-wrapper {
   background: #fff;
-  border: 2px solid #e5e5e5;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 20px;
   padding: 1.5rem;
 }
@@ -248,12 +258,12 @@ const nextQuestion = () => {
   align-items: center;
   margin-bottom: 0.5rem;
   font-weight: 800;
-  color: #555;
+  color: var(--color-text-light);
 }
 
 .xp-pill {
-  background: #fff3e0;
-  color: #e65100;
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
   padding: 0.2rem 0.7rem;
   border-radius: 999px;
   font-size: 0.85rem;
@@ -261,7 +271,7 @@ const nextQuestion = () => {
 
 .progress-bar-bg {
   height: 10px;
-  background: #eceff1;
+  background: #dfe6ec;
   border-radius: 999px;
   overflow: hidden;
   margin-bottom: 1.25rem;
@@ -269,46 +279,23 @@ const nextQuestion = () => {
 
 .progress-bar-fill {
   height: 100%;
-  background: #ff9600;
+  background: var(--color-warning);
   transition: width 0.3s ease;
 }
 
-.q-title {
-  margin: 0 0 1.2rem;
-  font-size: 1.25rem;
-  color: #2c3e50;
-}
+.q-title { margin: 0 0 1.2rem; font-size: 1.2rem; color: var(--color-text); }
 
 .feedback-box {
   margin-top: 1.25rem;
   padding: 1rem;
   border-radius: 12px;
+  border: 2px solid transparent;
 }
 
-.feedback-box.correct {
-  background: #e8f5e9;
-  color: #1b5e20;
-}
+.feedback-box.correct { background: var(--color-primary-light); color: var(--color-primary-dark); border-color: #99d5cc; }
+.feedback-box.incorrect { background: var(--color-danger-light); color: var(--color-danger-dark); border-color: #f3b5b5; }
+.feedback-box p { margin: 0.4rem 0 0; font-size: 0.92rem; line-height: 1.65; }
 
-.feedback-box.incorrect {
-  background: #ffebee;
-  color: #b71c1c;
-}
-
-.feedback-box p {
-  margin: 0.4rem 0 0;
-  font-size: 0.92rem;
-  line-height: 1.65;
-}
-
-.action-row {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
-}
-
-.action-btn {
-  min-width: 200px;
-  padding: 0.85rem 1.5rem;
-}
+.action-row { margin-top: 1.5rem; display: flex; justify-content: center; }
+.action-btn { min-width: 200px; padding: 0.85rem 1.5rem; }
 </style>

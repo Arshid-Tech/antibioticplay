@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from .auth import UserRegistration, UserLogin, UserProfile, UpdateAvatar
+from .auth import UserRegistration, UserLogin, UserProfile, UpdateAvatar, ChangePassword
 from .quiz import QuizList, QuizDetail, QuizSubmit
 from .leaderboard import Leaderboard
 from .badge_routes import AllBadges, EarnedBadges
@@ -40,6 +40,7 @@ auth_api.add_resource(UserRegistration, '/register')
 auth_api.add_resource(UserLogin, '/login')
 auth_api.add_resource(UserProfile, '/profile')
 auth_api.add_resource(UpdateAvatar, '/update-avatar')
+auth_api.add_resource(ChangePassword, '/change-password')
 
 quiz_bp = Blueprint('quiz_bp', __name__)
 quiz_api = Api(quiz_bp)

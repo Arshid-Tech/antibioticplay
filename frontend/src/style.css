@@ -1,86 +1,80 @@
-/* File: frontend/src/style.css */
+/* Clinical Duolingo Design System - AntibioticPlay */
 @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
 
 :root {
-  /* --- New Palette based on User Images (Blue/Red/Grey) --- */
-  
-  /* رنگ اصلی: آبی متوسط و حرفه‌ای (برگرفته از تصویر ۲) */
-  --color-primary: #0c54c4;       
-  --color-primary-shadow: #073d91; /* سایه تیره‌تر */
-  --color-primary-light: #7fb0ec;  /* آبی روشن برای پس‌زمینه‌های کمرنگ */
-  
-  /* رنگ ثانویه: آبی روشن‌تر و زنده‌تر (برای دکمه‌های اکشن یا لینک‌ها) */
-  --color-secondary: #0d64ec;     
-  --color-secondary-shadow: #08429e;
-  --color-secondary-light: #e3f2fd;
+  /* --- Clinical & Pharmacy Color Palette (Tactile Duolingo Feel) --- */
+  /* Primary: Clinical Teal (Surgical Scrub / Pharmacy Green) */
+  --color-primary: #0f766e;
+  --color-primary-dark: #0b5d56;
+  --color-primary-shadow: #0a544e;
+  --color-primary-light: #e6f4f1;
 
-  /* رنگ خطر/تاکید: قرمز (برگرفته از تصویر ۱) */
-  --color-danger: #e61c23;        
-  --color-danger-shadow: #b01217;
-  --color-danger-light: #ffcdd2;
+  /* Secondary: Medical Navy-Blue (Rx Chart Blue) */
+  --color-secondary: #1d5c8c;
+  --color-secondary-dark: #15466b;
+  --color-secondary-shadow: #133f61;
+  --color-secondary-light: #e8f1f8;
 
-  /* رنگ هشدار/ستاره‌ها: طلایی (ثابت نگه می‌داریم چون برای گیمیفیکیشن لازم است) */
-  --color-warning: #ffca28;       
-  --color-warning-shadow: #fbc02d;
-  --color-warning-light: #fffde7;
+  /* Danger: Clinical Crimson (Red Flag / Contraindication) */
+  --color-danger: #c81e1e;
+  --color-danger-dark: #9b1c1c;
+  --color-danger-shadow: #9b1c1c;
+  --color-danger-light: #fde8e8;
 
-  /* رنگ پس‌زمینه هیرو (آبی بسیار تیره و سرمه‌ای - تصویر ۲) */
-  --color-hero-bg: #134685;       
-  
-  /* متون و پس‌زمینه‌ها */
-  --color-text: #0c0c14;          /* مشکی متمایل به سرمه‌ای (تصویر ۲) */
-  --color-text-light: #546e7a;    /* خاکستری ملایم */
-  --color-border: #cfd8dc;        /* بوردر خاکستری سرد */
-  --color-background-page: #f9f9f9; /* سفید یخی */
-  --color-background-off: #eceff1;  /* خاکستری خیلی روشن برای اینپوت‌ها */
+  /* Warning / XP / Streak: Warm Clinical Amber */
+  --color-warning: #d97706;
+  --color-warning-dark: #b45309;
+  --color-warning-shadow: #a35504;
+  --color-warning-light: #fef3c7;
 
-  /* --- Dimensions & Spacing --- */
-  --button-radius: 12px;
-  --card-radius: 16px;
+  /* Hero Surface: Deep Clinical Navy */
+  --color-hero-bg: #133b5c;
+
+  /* Neutral Clinical Surfaces & Ink */
+  --color-text: #132230;
+  --color-text-light: #526477;
+  --color-border: #d7e0e8;
+  --color-border-strong: #c2cfd9;
+  --color-background-page: #f4f7f9;
+  --color-background-light: #ffffff;
+  --color-background-off: #edf2f6;
+
+  /* --- Dimensions & Tactile Depth --- */
+  --button-radius: 14px;
+  --card-radius: 18px;
   --input-radius: 12px;
-  --border-width: 1px;
-  --border-bottom-width: 3px;
+  --border-width: 2px;
+  --border-bottom-width: 4px;
 }
 
 html {
-  direction: rtl;
-  box-sizing: border-box;
-}
-
-*, *:before, *:after {
-  box-sizing: inherit;
+  font-size: 16px;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Vazirmatn', sans-serif;
-  text-align: right;
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background-color: var(--color-background-page);
   color: var(--color-text);
-  line-height: 1.6;
+  direction: rtl;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
 /* --- Global Drag & Select Prevention (App-Like Feel) --- */
 img, a, button, .logo-container, .stat-item {
-  /* جلوگیری از درگ شدن تصاویر و لینک‌ها توسط مرورگر */
   -webkit-user-drag: none;
   -khtml-user-drag: none;
   -moz-user-drag: none;
   -o-user-drag: none;
   user-drag: none;
-  
-  /* جلوگیری از آبی شدن متن هنگام کلیک یا درگ */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
-/* اجازه انتخاب متن در اینپوت‌ها (بسیار مهم) */
 input, textarea {
   user-select: text !important;
   -webkit-user-select: text !important;
@@ -90,161 +84,127 @@ input, textarea {
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   margin-bottom: 1rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-text);
+  letter-spacing: -0.01em;
 }
 
 a {
   color: var(--color-secondary);
   text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s;
+  transition: color 0.15s ease;
 }
 a:hover {
-  filter: brightness(1.1);
-  text-decoration: underline;
+  color: var(--color-secondary-dark);
 }
 
-/* --- Buttons (Professional 3D Style) --- */
+/* --- Tactile Duolingo-Style Buttons --- */
 button, .btn {
   cursor: pointer;
-  border: none;
+  border: 2px solid transparent;
+  border-bottom-width: var(--border-bottom-width);
   border-radius: var(--button-radius);
-  padding: 0.8rem 1.5rem;
   font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0px;
+  font-weight: 800;
+  font-size: 0.98rem;
+  padding: 0.72rem 1.4rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.08s ease, background-color 0.15s ease, border-color 0.15s ease;
   text-decoration: none;
   box-sizing: border-box;
-  
-  /* 3D Effect */
-  border-bottom-width: var(--border-bottom-width);
-  border-bottom-style: solid;
-  transform: translateY(0);
-  transition: all 0.15s ease;
-  min-width: 120px;
 }
 
-button:active:not(:disabled), .btn:active:not(.disabled) {
+button:active:not(:disabled), .btn:active:not(:disabled) {
   transform: translateY(2px);
-  border-bottom-width: 1px !important;
-  margin-top: 2px;
+  border-bottom-width: 2px;
 }
 
 button:disabled, .btn.disabled {
+  opacity: 0.55;
   cursor: not-allowed;
-  opacity: 0.6;
   transform: none !important;
-  background-color: #cfd8dc !important;
-  color: #90a4ae !important;
-  border-bottom-color: #b0bec5 !important;
 }
 
-/* Button Variants */
 .btn-primary {
   background-color: var(--color-primary);
-  color: white;
+  color: #ffffff;
+  border-color: var(--color-primary);
   border-bottom-color: var(--color-primary-shadow);
 }
-.btn-primary:hover:not(:disabled) { 
-  filter: brightness(1.1); 
+.btn-primary:hover:not(:disabled) {
+  background-color: #11847b;
+  color: #ffffff;
 }
 
 .btn-secondary {
   background-color: var(--color-secondary);
-  color: white;
+  color: #ffffff;
+  border-color: var(--color-secondary);
   border-bottom-color: var(--color-secondary-shadow);
 }
-.btn-secondary:hover:not(:disabled) { 
-  filter: brightness(1.1); 
+.btn-secondary:hover:not(:disabled) {
+  background-color: #236ba3;
+  color: #ffffff;
 }
 
 .btn-danger {
   background-color: var(--color-danger);
-  color: white;
+  color: #ffffff;
+  border-color: var(--color-danger);
   border-bottom-color: var(--color-danger-shadow);
 }
-.btn-danger:hover:not(:disabled) { 
-  filter: brightness(1.1); 
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+  color: #ffffff;
 }
 
 .btn-outline {
-  background-color: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  border-bottom-width: 3px;
-  color: white;
+  background-color: #ffffff;
+  color: var(--color-secondary);
+  border: 2px solid var(--color-border);
+  border-bottom: 4px solid var(--color-border-strong);
 }
-.btn-outline:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-color: #fff;
-}
-
-.btn-ghost {
-  background: transparent;
-  border: 2px solid transparent;
-  border-bottom-width: 2px;
-  color: var(--color-text-light);
-  box-shadow: none;
-}
-.btn-ghost:hover {
-  background-color: rgba(0,0,0,0.05);
-  color: var(--color-text);
+.btn-outline:hover:not(:disabled) {
+  background-color: var(--color-background-off);
+  border-color: var(--color-border-strong);
 }
 
-/* --- Cards --- */
+/* --- Clean Clinical Cards --- */
 .card {
-  background: white;
-  border: 1px solid var(--color-border);
+  background-color: var(--color-background-light);
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: var(--card-radius);
   padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
 
 /* --- Inputs --- */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea {
-  width: 100%;
-  padding: 0.9rem 1rem;
+input, textarea, select {
   font-family: inherit;
-  font-size: 1rem;
-  background-color: var(--color-background-off);
-  border: 2px solid transparent;
-  border-radius: var(--input-radius);
   color: var(--color-text);
-  outline: none;
-  transition: all 0.2s;
 }
 
-input:focus, textarea:focus {
-  background-color: white;
-  border-color: var(--color-secondary);
-  box-shadow: 0 0 0 3px var(--color-secondary-light);
+input::placeholder, textarea::placeholder {
+  color: #8b9bad;
 }
 
-input::placeholder {
-  color: #b0bec5;
-}
-
-/* --- Auth Pages Specifics --- */
+/* --- Auth Pages (Duolingo Clean Layout) --- */
 .auth-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: white;
+  background-color: var(--color-background-light);
 }
 
 .auth-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid var(--color-border);
+  padding: 1.25rem 2rem;
+  border-bottom: 2px solid var(--color-border);
 }
 
 .auth-content {
@@ -253,24 +213,25 @@ input::placeholder {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
   padding: 2rem 1rem;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .auth-title {
-  font-size: 1.8rem;
+  font-size: 1.65rem;
+  font-weight: 900;
+  margin-bottom: 1.75rem;
   color: var(--color-text);
-  margin-bottom: 1.5rem;
-  text-align: center;
 }
 
 .duo-form {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
 .input-group {
@@ -280,120 +241,115 @@ input::placeholder {
 
 .duo-input {
   width: 100%;
-  padding: 1rem 1.2rem;
-  background-color: var(--color-background-off);
+  padding: 0.9rem 1.1rem;
+  background-color: var(--color-background-page);
   border: 2px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--input-radius);
   font-size: 1rem;
+  color: var(--color-text);
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
+
+.duo-input:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+  background-color: #ffffff;
+}
+
 .duo-input.error {
   border-color: var(--color-danger);
-  background-color: var(--color-danger-light);
 }
 
 .forgot-link {
   position: absolute;
-  left: 15px;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--color-text-light);
-  text-transform: uppercase;
-  text-decoration: none;
-  cursor: pointer;
 }
-.forgot-link:hover { color: var(--color-secondary); }
 
 .btn-submit {
   width: 100%;
-  padding: 1rem;
-  margin-top: 1rem;
-  font-size: 1.1rem;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  border-bottom-color: var(--color-primary-shadow);
+  padding: 0.95rem;
+  font-size: 1.05rem;
+  margin-top: 0.4rem;
+}
+.btn-submit:hover:not(:disabled) {
+  background-color: #11847b;
 }
 
 .auth-footer-text {
-  margin-top: 2rem;
-  font-size: 0.8rem;
+  margin-top: 1.75rem;
+  font-size: 0.85rem;
   color: var(--color-text-light);
   text-align: center;
   line-height: 1.6;
-  max-width: 350px;
 }
 
-/* --- Progress Bar Gradient --- */
+/* --- Progress Bar --- */
 .progress-bar {
-  background-image: linear-gradient(
-    -90deg, 
-    rgba(255, 255, 255, 0.5) 0%, 
-    rgba(255, 255, 255, 0) 100%
-  ) !important;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-  border-radius: 12px; /* اطمینان از گرد بودن گوشه‌ها */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
-
 .progress-container {
-  background-color: #e0e0e0 !important;
+  background-color: #dfe6ec !important;
   border: none !important;
-  height: 12px !important;
+  height: 14px !important;
 }
 .progress-highlight {
-  background-color: rgba(255,255,255,0.5) !important;
+  background-color: rgba(255, 255, 255, 0.35) !important;
 }
 
 /* --- Animations --- */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-@keyframes scorePop { 
-  0% { transform: scale(1); color: var(--color-text); } 
-  50% { transform: scale(1.3); color: var(--color-warning); } 
-  100% { transform: scale(1); color: var(--color-text); } 
+@keyframes scorePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.28); color: var(--color-warning); }
+  100% { transform: scale(1); }
 }
-@keyframes shake { 
-  0%, 100% { transform: translateX(0); } 
-  25% { transform: translateX(-6px); } 
-  75% { transform: translateX(6px); } 
+.score-pop-animation {
+  animation: scorePop 0.55s ease-out;
 }
 
-.fade-in { animation: fadeIn 0.4s ease-out forwards; }
-.slide-up-fade-in { animation: slideUp 0.5s ease-out forwards; }
-.score-pop-animation { animation: scorePop 0.6s ease-out forwards; display: inline-block; font-weight: bold; }
-.shake-animation { animation: shake 0.4s ease-in-out forwards; }
-
-/* --- Utility Classes --- */
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-primary { color: var(--color-primary); }
-.text-secondary { color: var(--color-secondary); }
-.text-danger { color: var(--color-danger); }
-.text-warning { color: var(--color-warning); }
-
-.loading-state, .error-message, .empty-state {
-  text-align: center;
-  padding: 3rem;
-  font-size: 1.1rem;
-  color: var(--color-text-light);
+.error-message {
+  color: var(--color-danger);
+  font-weight: 700;
 }
-.error-message { color: var(--color-danger); }
 
-/* --- Drag & Drop Fixes --- */
-.dnd-poly-drag-image { pointer-events: none !important; opacity: 0.7 !important; z-index: 9999 !important; transform: scale(1.1); }
+/* --- Mobile Drag & Drop Critical Fixes --- */
+.dnd-poly-drag-image { pointer-events: none !important; opacity: 0.75 !important; z-index: 9999 !important; transform: scale(1.06); }
 .dnd-poly-drag-icon { display: none !important; }
-.draggable { touch-action: none !important; cursor: grab; }
-.draggable:active { cursor: grabbing; opacity: 0.5; }
+.draggable { touch-action: none !important; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; cursor: grab; }
+.draggable:active { cursor: grabbing; opacity: 0.6; }
 .droppable { pointer-events: auto !important; }
-.item-card.selected-mode { border-color: var(--color-secondary) !important; background-color: var(--color-secondary-light) !important; color: var(--color-secondary-shadow) !important; transform: scale(1.05); box-shadow: 0 4px 10px rgba(13, 100, 236, 0.3); z-index: 10; }
-.droppable.highlight-target { border-color: var(--color-secondary); border-style: solid; background-color: var(--color-primary-light); cursor: pointer; }
+.item-card.selected-mode {
+  border-color: var(--color-secondary) !important;
+  background-color: var(--color-secondary-light) !important;
+  color: var(--color-secondary-dark) !important;
+  transform: scale(1.03);
+  box-shadow: 0 3px 0 var(--color-secondary-shadow);
+  z-index: 10;
+}
+.droppable.highlight-target {
+  border-color: var(--color-primary);
+  border-style: solid;
+  background-color: var(--color-primary-light);
+  cursor: pointer;
+}
 
 /* --- Mobile Optimization --- */
 @media (max-width: 600px) {
-  html { font-size: 14px; }
+  html { font-size: 14.5px; }
   .card, .unit-card, .sidebar-widget { padding: 1rem !important; }
   .node-button { width: 65px; height: 65px; }
   .node-icon { font-size: 1.8rem; }
-  .quiz-header { padding: 0.8rem 1rem; height: 60px; }
+  .quiz-header { padding: 0.75rem 1rem; height: 58px; }
   .quiz-body { padding-bottom: 120px !important; }
-  .question-title { font-size: 1.3rem; margin-bottom: 1rem; }
+  .question-title { font-size: 1.25rem; margin-bottom: 1rem; }
   .item-card, .option-card { padding: 0.6rem !important; font-size: 0.9rem !important; min-height: auto; }
 }

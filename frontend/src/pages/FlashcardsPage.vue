@@ -16,19 +16,19 @@
       <!-- نوار آمار روزانه -->
       <section class="stats-strip" v-if="stats">
         <div class="stat-pill due">
-          <span class="pill-value">{{ stats.due_today }}</span>
+          <span class="pill-value">{{ toFa(stats.due_today) }}</span>
           <span class="pill-label">در صف امروز</span>
         </div>
         <div class="stat-pill reviewed">
-          <span class="pill-value">{{ stats.reviewed_today }}</span>
+          <span class="pill-value">{{ toFa(stats.reviewed_today) }}</span>
           <span class="pill-label">مرور امروز</span>
         </div>
         <div class="stat-pill mastered">
-          <span class="pill-value">{{ stats.mastered }}</span>
+          <span class="pill-value">{{ toFa(stats.mastered) }}</span>
           <span class="pill-label">تسلط کامل</span>
         </div>
         <div class="stat-pill total">
-          <span class="pill-value">{{ stats.total_cards }}</span>
+          <span class="pill-value">{{ toFa(stats.total_cards) }}</span>
           <span class="pill-label">کل کارت‌ها</span>
         </div>
       </section>
@@ -36,49 +36,30 @@
       <!-- تب‌های حالت مطالعه -->
       <section class="mode-tabs">
         <button
+          type="button"
           class="mode-btn"
           :class="{ active: mode === 'due' }"
           @click="changeMode('due')"
         >
-          مرور امروز
-          <span v-if="stats" class="count-chip">{{ stats.due_today }}</span>
+          <span>مرور امروز</span>
+          <span v-if="stats" class="count-chip">{{ toFa(stats.due_today) }}</span>
         </button>
         <button
+          type="button"
           class="mode-btn"
           :class="{ active: mode === 'all' }"
           @click="changeMode('all')"
         >
-          همه کارت‌ها
+          <span>همه کارت‌ها</span>
         </button>
         <button
+          type="button"
           class="mode-btn"
           :class="{ active: mode === 'bookmarked' }"
           @click="changeMode('bookmarked')"
         >
-          نشان‌شده‌ها
-          <span v-if="stats" class="count-chip">{{ stats.bookmarked }}</span>
-        </button>
-      </section>
-
-      <!-- فیلتر خانواده دارویی -->
-      <section class="categories-scroller" v-if="categories.length">
-        <button
-          class="cat-chip"
-          :class="{ active: selectedCategory === 'all' }"
-          @click="selectCategory('all')"
-        >
-          همه دسته‌ها
-        </button>
-        <button
-          v-for="cat in categories"
-          :key="cat.name"
-          class="cat-chip"
-          :class="{ active: selectedCategory === cat.name }"
-          @click="selectCategory(cat.name)"
-        >
-          <span>{{ cat.name }}</span>
-          <span class="cat-badge" v-if="mode === 'due' && cat.due > 0">{{ cat.due }}</span>
-          <span class="cat-badge neutral" v-else>{{ cat.total }}</span>
+          <span>نشان‌شده‌ها</span>
+          <span v-if="stats" class="count-chip">{{ toFa(stats.bookmarked) }}</span>
         </button>
       </section>
 
@@ -89,16 +70,18 @@
 
       <!-- وضعیت اتمام مرور یا نبود کارت -->
       <div v-else-if="cards.length === 0 || currentIndex >= cards.length" class="state-box done-box">
-        <div class="done-emoji">🎉</div>
-        <h2 v-if="mode === 'due'">آفرین! تمام کارت‌های امروز مرور شدند</h2>
+        <div class="done-icon-circle">
+          <font-awesome-icon icon="fas fa-check" />
+        </div>
+        <h2 v-if="mode === 'due'">تمام کارت‌های امروز مرور شدند</h2>
         <h2 v-else-if="mode === 'bookmarked'">هنوز کارتی نشان نشده است</h2>
-        <h2 v-else>کارتی در این دسته یافت نشد</h2>
+        <h2 v-else>کارتی یافت نشد</h2>
         <p v-if="sessionReviewed > 0">
-          در این جلسه <strong>{{ sessionReviewed }}</strong> کارت مرور کردید و
-          <strong>+{{ sessionXp }} XP</strong> دریافت کردید.
+          در این جلسه <strong>{{ toFa(sessionReviewed) }}</strong> کارت مرور کردید و
+          <strong>+{{ toFa(sessionXp) }} XP</strong> دریافت کردید.
         </p>
         <div class="done-actions">
-          <button v-if="mode === 'due'" class="btn btn-primary" @click="changeMode('all')">
+          <button v-if="mode === 'due'" type="button" class="btn btn-primary" @click="changeMode('all')">
             مرور آزاد همه کارت‌ها
           </button>
           <router-link to="/dashboard" class="btn btn-outline">
@@ -111,16 +94,18 @@
       <section v-else class="study-area">
         <div class="study-meta">
           <span class="card-counter">
-            کارت {{ currentIndex + 1 }} از {{ cards.length }}
+            کارت {{ toFa(currentIndex + 1) }} از {{ toFa(cards.length) }}
           </span>
           <span class="box-indicator" :class="'box-' + (currentCard.box || 0)">
             {{ boxLabel(currentCard.box) }}
           </span>
           <button
+            type="button"
             class="bookmark-icon-btn"
             :class="{ bookmarked: currentCard.is_bookmarked }"
             @click.stop="toggleBookmark"
             title="نشان‌گذاری کارت"
+            aria-label="نشان‌گذاری کارت"
           >
             <font-awesome-icon
               :icon="currentCard.is_bookmarked ? 'fas fa-bookmark' : 'far fa-bookmark'"
@@ -131,7 +116,7 @@
         <div class="session-progress-bar">
           <div
             class="session-progress-fill"
-            :style="{ width: `${((currentIndex) / cards.length) * 100}%` }"
+            :style="{ width: `${(currentIndex / cards.length) * 100}%` }"
           ></div>
         </div>
 
@@ -150,7 +135,7 @@
                 <h2 class="front-question">{{ currentCard.front }}</h2>
               </div>
               <div class="face-footer">
-                <span>برای مشاهده پاسخ کلیک کنید (یا کلید Space)</span>
+                <span>برای مشاهده پاسخ کلیک کنید</span>
               </div>
             </div>
 
@@ -163,7 +148,7 @@
               <div class="face-body back-body">
                 <p class="back-answer">{{ currentCard.back }}</p>
                 <div v-if="currentCard.clinical_pearl" class="pearl-box">
-                  <strong>💡 نکته بالینی و بازار ایران:</strong>
+                  <strong>نکته بالینی و بازار ایران:</strong>
                   <p>{{ currentCard.clinical_pearl }}</p>
                 </div>
               </div>
@@ -178,6 +163,7 @@
         <div class="controls-area">
           <button
             v-if="!isFlipped"
+            type="button"
             class="btn btn-primary flip-cta"
             @click="flipCard"
           >
@@ -186,27 +172,30 @@
 
           <div v-else class="rating-grid">
             <button
+              type="button"
               class="rate-btn rate-hard"
               :disabled="submitting"
               @click="rateCard('hard')"
             >
-              <strong>سخت (۱)</strong>
+              <strong>سخت</strong>
               <span>مرور فردا • +۱ XP</span>
             </button>
             <button
+              type="button"
               class="rate-btn rate-medium"
               :disabled="submitting"
               @click="rateCard('medium')"
             >
-              <strong>متوسط (۲)</strong>
-              <span>مرور چند روز بعد • +۲ XP</span>
+              <strong>متوسط</strong>
+              <span>چند روز بعد • +۲ XP</span>
             </button>
             <button
+              type="button"
               class="rate-btn rate-easy"
               :disabled="submitting"
               @click="rateCard('easy')"
             >
-              <strong>آسان (۳)</strong>
+              <strong>آسان</strong>
               <span>تسلط بالا • +۳ XP</span>
             </button>
           </div>
@@ -221,25 +210,28 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import flashcardService from '../services/flashcardService';
 import { useAuthStore } from '../stores/auth';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowRight, faBookmark as fasBookmark } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faCheck, faBookmark as fasBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as farBookmark } from '@fortawesome/free-regular-svg-icons';
 
-library.add(faArrowRight, fasBookmark, farBookmark);
+library.add(faArrowRight, faCheck, fasBookmark, farBookmark);
 
 const authStore = useAuthStore();
 
-const categories = ref([]);
 const stats = ref(null);
 const cards = ref([]);
 const loading = ref(true);
 const submitting = ref(false);
 
 const mode = ref('due');
-const selectedCategory = ref('all');
 const currentIndex = ref(0);
 const isFlipped = ref(false);
 const sessionReviewed = ref(0);
 const sessionXp = ref(0);
+
+const toFa = (val) => {
+  if (val === null || val === undefined) return '';
+  return String(val).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+};
 
 const currentCard = computed(() => cards.value[currentIndex.value] || null);
 
@@ -252,16 +244,12 @@ const boxLabel = (box) => {
   return 'جعبه ۵ (تثبیت‌شده)';
 };
 
-const fetchMeta = async () => {
+const fetchStats = async () => {
   try {
-    const [catRes, statsRes] = await Promise.all([
-      flashcardService.getCategories(),
-      flashcardService.getStats(),
-    ]);
-    categories.value = catRes.data;
+    const statsRes = await flashcardService.getStats();
     stats.value = statsRes.data;
   } catch (err) {
-    console.error('Error loading flashcard metadata:', err);
+    console.error('Error loading flashcard stats:', err);
   }
 };
 
@@ -271,7 +259,7 @@ const fetchCards = async () => {
   currentIndex.value = 0;
   try {
     const res = await flashcardService.getCards({
-      category: selectedCategory.value,
+      category: 'all',
       mode: mode.value,
       limit: 60,
     });
@@ -286,11 +274,6 @@ const fetchCards = async () => {
 const changeMode = async (newMode) => {
   if (mode.value === newMode) return;
   mode.value = newMode;
-  await fetchCards();
-};
-
-const selectCategory = async (catName) => {
-  selectedCategory.value = catName;
   await fetchCards();
 };
 
@@ -313,7 +296,7 @@ const rateCard = async (rating) => {
 
     isFlipped.value = false;
     currentIndex.value += 1;
-    await fetchMeta();
+    await fetchStats();
   } catch (err) {
     console.error('Error submitting flashcard review:', err);
   } finally {
@@ -326,7 +309,7 @@ const toggleBookmark = async () => {
   try {
     const res = await flashcardService.toggleBookmark(currentCard.value.id);
     currentCard.value.is_bookmarked = res.data.is_bookmarked;
-    await fetchMeta();
+    await fetchStats();
   } catch (err) {
     console.error('Error toggling flashcard bookmark:', err);
   }
@@ -348,7 +331,7 @@ const handleKeydown = (e) => {
 
 onMounted(async () => {
   window.addEventListener('keydown', handleKeydown);
-  await Promise.all([fetchMeta(), fetchCards()]);
+  await Promise.all([fetchStats(), fetchCards()]);
 });
 
 onBeforeUnmount(() => {
@@ -359,15 +342,17 @@ onBeforeUnmount(() => {
 <style scoped>
 .flashcards-page {
   min-height: 100vh;
-  background-color: #f6f8fb;
+  background-color: var(--color-background-page);
   direction: rtl;
   padding-bottom: 95px;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .fc-header {
   background: #ffffff;
-  border-bottom: 2px solid #e5e5e5;
-  padding: 1rem 1.5rem;
+  border-bottom: 2px solid var(--color-border);
+  padding: 0.9rem 1rem;
   position: sticky;
   top: 0;
   z-index: 20;
@@ -378,15 +363,15 @@ onBeforeUnmount(() => {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .back-btn {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: #f0f2f5;
-  color: #555;
+  border-radius: 12px;
+  background: var(--color-background-off);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -396,36 +381,38 @@ onBeforeUnmount(() => {
 
 .header-titles h1 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 800;
-  color: #2c3e50;
+  color: var(--color-text);
 }
 
 .header-titles p {
   margin: 0.15rem 0 0;
-  font-size: 0.85rem;
-  color: #777;
+  font-size: 0.82rem;
+  color: var(--color-text-light);
 }
 
 .fc-container {
   max-width: 820px;
-  margin: 1.25rem auto 0;
-  padding: 0 1rem;
+  margin: 1rem auto 0;
+  padding: 0 0.9rem;
+  box-sizing: border-box;
 }
 
 /* Stats Strip */
 .stats-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1.1rem;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
 }
 
 .stat-pill {
   background: #ffffff;
-  border: 2px solid #e8ecf1;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 14px;
-  padding: 0.7rem 0.5rem;
+  padding: 0.65rem 0.4rem;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -433,101 +420,61 @@ onBeforeUnmount(() => {
 }
 
 .pill-value {
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   font-weight: 900;
 }
 
 .pill-label {
-  font-size: 0.78rem;
-  color: #6b7785;
+  font-size: 0.76rem;
+  color: var(--color-text-light);
   font-weight: 700;
 }
 
-.stat-pill.due .pill-value { color: #ff9600; }
-.stat-pill.reviewed .pill-value { color: #0288d1; }
-.stat-pill.mastered .pill-value { color: #43a047; }
-.stat-pill.total .pill-value { color: #5e35b1; }
+.stat-pill.due .pill-value { color: var(--color-warning); }
+.stat-pill.reviewed .pill-value { color: var(--color-secondary); }
+.stat-pill.mastered .pill-value { color: var(--color-primary); }
+.stat-pill.total .pill-value { color: var(--color-text); }
 
 /* Mode Tabs */
 .mode-tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  margin-bottom: 1.1rem;
 }
 
 .mode-btn {
-  flex: 1;
+  min-width: 0 !important;
+  width: 100%;
   background: #ffffff;
-  border: 2px solid #e5e5e5;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 12px;
-  padding: 0.65rem 0.75rem;
+  padding: 0.6rem 0.4rem;
   font-weight: 800;
-  font-size: 0.9rem;
-  color: #555;
+  font-size: 0.82rem;
+  color: var(--color-text-light);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  transition: all 0.2s;
+  gap: 0.35rem;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
 
 .mode-btn.active {
-  background: #0288d1;
-  border-color: #0288d1;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  border-bottom-color: var(--color-primary-shadow);
   color: #ffffff;
 }
 
 .count-chip {
-  background: rgba(0, 0, 0, 0.12);
-  padding: 0.1rem 0.5rem;
+  background: rgba(0, 0, 0, 0.14);
+  padding: 0.08rem 0.45rem;
   border-radius: 999px;
-  font-size: 0.78rem;
-}
-
-/* Categories */
-.categories-scroller {
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-  margin-bottom: 1.1rem;
-  scrollbar-width: thin;
-}
-
-.cat-chip {
-  white-space: nowrap;
-  background: #ffffff;
-  border: 2px solid #e5e5e5;
-  border-radius: 999px;
-  padding: 0.42rem 0.85rem;
-  font-size: 0.83rem;
-  font-weight: 700;
-  color: #4b5563;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: all 0.2s;
-}
-
-.cat-chip.active {
-  border-color: #009688;
-  background: #e0f2f1;
-  color: #00695c;
-}
-
-.cat-badge {
-  background: #ff9600;
-  color: #fff;
-  border-radius: 999px;
-  padding: 0.05rem 0.45rem;
-  font-size: 0.72rem;
-}
-
-.cat-badge.neutral {
-  background: #e5e7eb;
-  color: #4b5563;
+  font-size: 0.74rem;
 }
 
 /* Study Area */
@@ -535,61 +482,69 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
 }
 
 .card-counter {
   font-weight: 800;
-  color: #555;
-  font-size: 0.9rem;
+  color: var(--color-text-light);
+  font-size: 0.88rem;
+  white-space: nowrap;
 }
 
 .box-indicator {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.76rem;
+  font-weight: 800;
   padding: 0.25rem 0.7rem;
   border-radius: 999px;
-  background: #eef2f7;
-  color: #4b5563;
+  background: var(--color-background-off);
+  color: var(--color-text-light);
+  text-align: center;
 }
 
-.box-indicator.box-1 { background: #ffebee; color: #c62828; }
-.box-indicator.box-2 { background: #fff3e0; color: #e65100; }
-.box-indicator.box-3 { background: #e3f2fd; color: #1565c0; }
+.box-indicator.box-1 { background: var(--color-danger-light); color: var(--color-danger-dark); }
+.box-indicator.box-2 { background: var(--color-warning-light); color: var(--color-warning-dark); }
+.box-indicator.box-3 { background: var(--color-secondary-light); color: var(--color-secondary-dark); }
 .box-indicator.box-4,
-.box-indicator.box-5 { background: #e8f5e9; color: #2e7d32; }
+.box-indicator.box-5 { background: var(--color-primary-light); color: var(--color-primary-dark); }
 
 .bookmark-icon-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 2px solid #e5e5e5;
-  background: #fff;
-  color: #999;
+  min-width: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 3px;
+  background: #ffffff;
+  color: #8b9bad;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 1rem;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
 }
 
 .bookmark-icon-btn.bookmarked {
-  border-color: #ffb300;
-  color: #ffb300;
-  background: #fffdf0;
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+  background: var(--color-warning-light);
 }
 
 .session-progress-bar {
-  height: 8px;
-  background: #e5e7eb;
+  height: 10px;
+  background: #dfe6ec;
   border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.1rem;
 }
 
 .session-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0288d1, #009688);
+  background-color: var(--color-primary);
   transition: width 0.35s ease;
 }
 
@@ -597,15 +552,15 @@ onBeforeUnmount(() => {
 .flip-scene {
   perspective: 1200px;
   width: 100%;
-  min-height: 340px;
+  min-height: 330px;
   cursor: pointer;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.15rem;
 }
 
 .flip-card {
   position: relative;
   width: 100%;
-  min-height: 340px;
+  min-height: 330px;
   transform-style: preserve-3d;
   transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -620,53 +575,53 @@ onBeforeUnmount(() => {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   background: #ffffff;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   border-bottom-width: 5px;
-  border-radius: 22px;
-  padding: 1.5rem;
+  border-radius: 20px;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
 }
 
 .card-back {
   transform: rotateY(180deg);
-  border-color: #0288d1;
-  background: #fafdff;
+  border-color: var(--color-primary);
+  border-bottom-color: var(--color-primary-shadow);
+  background: #fcfffe;
 }
 
 .face-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.4rem;
 }
 
 .tag-cat {
-  background: #e3f2fd;
-  color: #0277bd;
-  padding: 0.25rem 0.7rem;
+  background: var(--color-secondary-light);
+  color: var(--color-secondary-dark);
+  padding: 0.22rem 0.65rem;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 800;
 }
 
 .tag-sub {
-  background: #f3f4f6;
-  color: #6b7280;
-  padding: 0.25rem 0.7rem;
+  background: var(--color-background-off);
+  color: var(--color-text-light);
+  padding: 0.22rem 0.65rem;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
 }
 
 .tag-answer {
-  background: #d7ffb8;
-  color: #2e7d32;
-  padding: 0.25rem 0.7rem;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  padding: 0.22rem 0.65rem;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 800;
 }
 
@@ -675,14 +630,14 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1rem 0;
+  padding: 0.9rem 0;
 }
 
 .front-question {
   margin: 0;
-  font-size: 1.25rem;
-  line-height: 1.85;
-  color: #1f2937;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: var(--color-text);
   text-align: center;
   font-weight: 800;
 }
@@ -690,42 +645,42 @@ onBeforeUnmount(() => {
 .back-body {
   justify-content: flex-start;
   overflow-y: auto;
-  gap: 0.9rem;
+  gap: 0.8rem;
 }
 
 .back-answer {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.85;
-  color: #1f2937;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--color-text);
   white-space: pre-line;
 }
 
 .pearl-box {
-  background: #fff8e1;
-  border-right: 4px solid #ffb300;
+  background: var(--color-warning-light);
+  border-right: 4px solid var(--color-warning);
   border-radius: 10px;
-  padding: 0.75rem 0.95rem;
-  font-size: 0.88rem;
-  color: #5d4037;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.84rem;
+  color: #5c3a04;
 }
 
 .pearl-box strong {
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
 }
 
 .pearl-box p {
   margin: 0;
-  line-height: 1.65;
+  line-height: 1.6;
 }
 
 .face-footer {
   text-align: center;
-  font-size: 0.8rem;
-  color: #9ca3af;
-  padding-top: 0.5rem;
-  border-top: 1px dashed #e5e7eb;
+  font-size: 0.78rem;
+  color: #8b9bad;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--color-border);
 }
 
 /* Controls */
@@ -737,108 +692,75 @@ onBeforeUnmount(() => {
 .flip-cta {
   width: 100%;
   max-width: 340px;
-  padding: 0.95rem 1.5rem;
-  font-size: 1.05rem;
+  padding: 0.9rem 1.4rem;
+  font-size: 1rem;
 }
 
 .rating-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  gap: 0.55rem;
   width: 100%;
 }
 
 .rate-btn {
+  min-width: 0 !important;
+  width: 100%;
   border: 2px solid transparent;
   border-bottom-width: 4px;
   border-radius: 14px;
-  padding: 0.8rem 0.6rem;
+  padding: 0.75rem 0.35rem;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
-  transition: transform 0.1s, filter 0.15s;
+  transition: transform 0.08s;
 }
 
 .rate-btn:active:not(:disabled) {
   transform: translateY(2px);
+  border-bottom-width: 2px;
 }
 
-.rate-btn strong {
-  font-size: 0.98rem;
-}
+.rate-btn strong { font-size: 0.94rem; }
+.rate-btn span { font-size: 0.72rem; opacity: 0.88; }
 
-.rate-btn span {
-  font-size: 0.75rem;
-  opacity: 0.88;
-}
-
-.rate-hard {
-  background: #ffebee;
-  color: #c62828;
-  border-color: #ef9a9a;
-}
-
-.rate-medium {
-  background: #e3f2fd;
-  color: #1565c0;
-  border-color: #90caf9;
-}
-
-.rate-easy {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border-color: #a5d6a7;
-}
+.rate-hard { background: var(--color-danger-light); color: var(--color-danger-dark); border-color: #f3b5b5; border-bottom-color: #e28080; }
+.rate-medium { background: var(--color-secondary-light); color: var(--color-secondary-dark); border-color: #b2cde3; border-bottom-color: #7ea8cc; }
+.rate-easy { background: var(--color-primary-light); color: var(--color-primary-dark); border-color: #99d5cc; border-bottom-color: #5eb8ac; }
 
 /* Empty / Done State */
 .state-box {
   background: #ffffff;
-  border: 2px solid #e5e5e5;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 20px;
-  padding: 2.5rem 1.5rem;
+  padding: 2.2rem 1.25rem;
   text-align: center;
 }
 
-.done-emoji {
-  font-size: 3.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.done-box h2 {
-  margin: 0 0 0.75rem;
-  color: #2c3e50;
-}
-
-.done-box p {
-  color: #5c6b7a;
-  margin-bottom: 1.5rem;
-}
-
-.done-actions {
+.done-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 1.8rem;
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  margin: 0 auto 0.9rem;
 }
+
+.done-box h2 { margin: 0 0 0.7rem; color: var(--color-text); font-size: 1.2rem; }
+.done-box p { color: var(--color-text-light); margin-bottom: 1.4rem; }
+.done-actions { display: flex; justify-content: center; gap: 0.65rem; flex-wrap: wrap; }
 
 @media (max-width: 600px) {
-  .stats-strip {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .flip-scene,
-  .flip-card {
-    min-height: 380px;
-  }
-  .front-question {
-    font-size: 1.08rem;
-  }
-  .rating-grid {
-    gap: 0.5rem;
-  }
-  .rate-btn span {
-    font-size: 0.7rem;
-  }
+  .stats-strip { grid-template-columns: repeat(2, 1fr); }
+  .flip-scene, .flip-card { min-height: 360px; }
+  .front-question { font-size: 1.05rem; }
+  .mode-btn { font-size: 0.78rem; padding: 0.55rem 0.25rem; }
 }
 </style>

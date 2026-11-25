@@ -20,8 +20,8 @@ export default defineConfig({
           'پلتفرم تعاملی و گیمیفای شده آموزش داروهای آنتی‌میکروبیال برای دانشجویان داروسازی',
         lang: 'fa',
         dir: 'rtl',
-        theme_color: '#0288d1',
-        background_color: '#ffffff',
+        theme_color: '#0f766e',
+        background_color: '#f4f7f9',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
@@ -59,7 +59,7 @@ export default defineConfig({
               networkTimeoutSeconds: 5,
               expiration: {
                 maxEntries: 60,
-                maxAgeSeconds: 60 * 60 * 24, // 1 day
+                maxAgeSeconds: 60 * 60 * 24,
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -75,7 +75,7 @@ export default defineConfig({
               cacheName: 'media-cache',
               expiration: {
                 maxEntries: 80,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30,
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -89,7 +89,7 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365,
               },
               cacheableResponse: {
                 statuses: [0, 200],
