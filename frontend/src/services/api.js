@@ -1,11 +1,27 @@
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth';
 
+const DEFAULT_PROD_BACKEND = 'https://antibioticplay-backend-lkxx.onrender.com/api';
+
 const getApiBaseUrl = () => {
-  const raw = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
-  if (!raw) return '/api';
-  if (raw.endsWith('/api')) return raw;
-  return `${raw}/api`;
+  let raw = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+
+  // Auto-correct legacy Render backend URL without the '-lkxx' suffix
+  if (raw.includes('antibioticplay-backend.onrender.com')) {
+    raw = raw.replace(
+      'antibioticplay-backend.onrender.com',
+      'antibioticplay-backend-lkxx.onrender.com'
+    );
+  }
+
+  if (!raw) {
+    const isLocal =
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    return isLocal ? '/api' : DEFAULT_PROD_BACKEND;
+  }
+
+  return raw.endsWith('/api') ? raw : `${raw}/api`;
 };
 
 const apiClient = axios.create({

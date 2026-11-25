@@ -6,9 +6,10 @@ export default defineConfig({
   plugins: [
     vue(),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       includeAssets: [
         'images/antibioticplay.ir.png',
+        'images/clinical-bg-pattern.svg',
         'icons/pwa-icon.svg',
         'correct.mp3',
         'incorrect.mp3',
@@ -46,6 +47,9 @@ export default defineConfig({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,svg,woff2,mp3}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallback: '/index.html',
@@ -56,7 +60,7 @@ export default defineConfig({
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
-              networkTimeoutSeconds: 5,
+              networkTimeoutSeconds: 8,
               expiration: {
                 maxEntries: 60,
                 maxAgeSeconds: 60 * 60 * 24,

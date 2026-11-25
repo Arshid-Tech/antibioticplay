@@ -39,6 +39,9 @@
   --color-background-light: #ffffff;
   --color-background-off: #edf2f6;
 
+  /* Subtle Pharmacy & Antimicrobial Background Pattern */
+  --clinical-bg-pattern: url('/images/clinical-bg-pattern.svg');
+
   /* --- Dimensions & Tactile Depth --- */
   --button-radius: 14px;
   --card-radius: 18px;
@@ -56,10 +59,28 @@ body {
   padding: 0;
   font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background-color: var(--color-background-page);
+  background-image: var(--clinical-bg-pattern);
+  background-repeat: repeat;
+  background-size: 220px 220px;
   color: var(--color-text);
   direction: rtl;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+/* Apply subtle clinical pattern to main app views without overpowering cards */
+.dashboard-layout,
+.flashcards-page,
+.survey-page,
+.daily-page,
+.duel-page,
+.admin-page,
+.review-page,
+.rules-page {
+  background-color: var(--color-background-page) !important;
+  background-image: var(--clinical-bg-pattern) !important;
+  background-repeat: repeat !important;
+  background-size: 220px 220px !important;
 }
 
 /* --- Global Drag & Select Prevention (App-Like Feel) --- */
@@ -196,7 +217,10 @@ input::placeholder, textarea::placeholder {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-background-light);
+  background-color: var(--color-background-page);
+  background-image: var(--clinical-bg-pattern);
+  background-repeat: repeat;
+  background-size: 220px 220px;
 }
 
 .auth-header {
@@ -204,6 +228,7 @@ input::placeholder, textarea::placeholder {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 2rem;
+  background-color: #ffffff;
   border-bottom: 2px solid var(--color-border);
 }
 
@@ -242,7 +267,7 @@ input::placeholder, textarea::placeholder {
 .duo-input {
   width: 100%;
   padding: 0.9rem 1.1rem;
-  background-color: var(--color-background-page);
+  background-color: #ffffff;
   border: 2px solid var(--color-border);
   border-radius: var(--input-radius);
   font-size: 1rem;
