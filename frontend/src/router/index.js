@@ -16,6 +16,8 @@ import AboutPage from '../pages/AboutPage.vue';
 import ContactPage from '../pages/ContactPage.vue';
 import FlashcardsPage from '../pages/FlashcardsPage.vue';
 import ProfilePage from '../pages/ProfilePage.vue';
+import DailyChallengePage from '../pages/DailyChallengePage.vue';
+import DuelPage from '../pages/DuelPage.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: HomePage },
@@ -33,6 +35,8 @@ const routes = [
   { path: '/contact', name: 'Contact', component: ContactPage },
   { path: '/flashcards', name: 'Flashcards', component: FlashcardsPage, meta: { requiresAuth: true } },
   { path: '/profile', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
+  { path: '/daily-challenge', name: 'DailyChallenge', component: DailyChallengePage, meta: { requiresAuth: true } },
+  { path: '/duel/:id', name: 'Duel', component: DuelPage, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({
