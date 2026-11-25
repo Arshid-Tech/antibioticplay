@@ -25,11 +25,10 @@
     </div>
 
     <main class="admin-body">
-      <!-- ==================== TAB 1: ANALYTICS & SPSS ==================== -->
       <section v-if="activeTab === 'analytics'" class="tab-panel">
         <div class="export-bar card">
           <div>
-            <h3>📥 خروجی مستقیم داده‌های پژوهشی (Excel / SPSS)</h3>
+            <h3>خروجی مستقیم داده‌های پژوهشی (Excel / SPSS)</h3>
             <p>فایل‌ها با انکودینگ UTF-8-SIG آماده باز شدن مستقیم در Excel و SPSS هستند.</p>
           </div>
           <div class="export-buttons">
@@ -68,7 +67,6 @@
           </div>
         </div>
 
-        <!-- نمودار ۴ حیطه MEEGA+ -->
         <div v-if="analytics" class="card">
           <h3>میانگین حیطه‌های پرسشنامه MEEGA+ (از ۵)</h3>
           <div class="domain-bars">
@@ -84,7 +82,6 @@
           </div>
         </div>
 
-        <!-- جدول عملکرد مراحل -->
         <div v-if="analytics" class="card table-card">
           <h3>عملکرد دانشجویان به تفکیک مراحل بازی</h3>
           <div class="table-scroll">
@@ -117,7 +114,6 @@
           </div>
         </div>
 
-        <!-- نظرات کیفی -->
         <div v-if="analytics?.qualitative_notes?.length" class="card">
           <h3>نظرات کیفی دانشجویان</h3>
           <div class="notes-list">
@@ -131,7 +127,6 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 2: QUIZZES & MICRO-LESSONS ==================== -->
       <section v-else-if="activeTab === 'quizzes'" class="tab-panel">
         <div class="card">
           <h3>افزودن مرحله جدید</h3>
@@ -174,7 +169,6 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 3: QUESTIONS CMS ==================== -->
       <section v-else-if="activeTab === 'questions'" class="tab-panel">
         <div class="card">
           <div class="filter-row">
@@ -202,7 +196,6 @@
           </div>
         </div>
 
-        <!-- مودال ویرایش/افزودن سوال -->
         <div v-if="questionModal.open" class="modal-overlay" @click.self="questionModal.open = false">
           <div class="modal-card">
             <h3>{{ questionModal.isEdit ? 'ویرایش سوال' : 'افزودن سوال جدید' }}</h3>
@@ -240,7 +233,6 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 4: FLASHCARDS CMS ==================== -->
       <section v-else-if="activeTab === 'flashcards'" class="tab-panel">
         <div class="card">
           <h3>{{ fcForm.id ? 'ویرایش فلش‌کارت' : 'افزودن فلش‌کارت جدید' }}</h3>
@@ -303,7 +295,6 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 5: USERS & ROLES ==================== -->
       <section v-else-if="activeTab === 'users'" class="tab-panel">
         <div class="card table-card">
           <h3>لیست کاربران و مدیریت دسترسی ادمین</h3>
@@ -326,15 +317,12 @@
                   <td>{{ `${u.first_name} ${u.last_name}`.trim() || '-' }}</td>
                   <td dir="ltr">{{ u.email }}</td>
                   <td>{{ u.score }}</td>
-                  <td>{{ u.survey_submitted ? '✅' : '—' }}</td>
+                  <td>{{ u.survey_submitted ? 'ثبت شده' : '—' }}</td>
                   <td>
                     <span class="role-badge" :class="u.role">{{ u.role === 'admin' ? 'مدیر' : 'دانشجو' }}</span>
                   </td>
                   <td>
-                    <button
-                      class="btn-sm btn-save"
-                      @click="toggleRole(u)"
-                    >
+                    <button class="btn-sm btn-save" @click="toggleRole(u)">
                       {{ u.role === 'admin' ? 'تغییر به دانشجو' : 'ارتقا به مدیر' }}
                     </button>
                   </td>
@@ -360,11 +348,11 @@ library.add(faArrowRight);
 const notificationStore = useNotificationStore();
 
 const tabs = [
-  { id: 'analytics', label: '📊 آنالیتیکس و SPSS' },
-  { id: 'quizzes', label: '📚 مراحل و مینی‌درس‌ها' },
-  { id: 'questions', label: '❓ مدیریت سوالات' },
-  { id: 'flashcards', label: '🗂️ مدیریت فلش‌کارت‌ها' },
-  { id: 'users', label: '👥 کاربران و دسترسی‌ها' },
+  { id: 'analytics', label: 'آنالیتیکس و SPSS' },
+  { id: 'quizzes', label: 'مراحل و مینی‌درس‌ها' },
+  { id: 'questions', label: 'مدیریت سوالات' },
+  { id: 'flashcards', label: 'مدیریت فلش‌کارت‌ها' },
+  { id: 'users', label: 'کاربران و دسترسی‌ها' },
 ];
 
 const activeTab = ref('analytics');
@@ -466,7 +454,7 @@ const createQuiz = async () => {
     quizzes.value.push(res.data);
     newQuiz.title = '';
     newQuiz.description = '';
-    notificationStore.showNotification({ title: '✅ انجام شد', message: 'مرحله جدید اضافه شد.' });
+    notificationStore.showNotification({ title: 'انجام شد', message: 'مرحله جدید اضافه شد.' });
   } catch (err) {
     notificationStore.showNotification({
       title: 'خطا',
@@ -482,7 +470,7 @@ const saveQuiz = async (quiz) => {
       description: quiz.description,
       micro_lesson: quiz.micro_lesson,
     });
-    notificationStore.showNotification({ title: '✅ ذخیره شد', message: 'تغییرات مرحله ذخیره شد.' });
+    notificationStore.showNotification({ title: 'ذخیره شد', message: 'تغییرات مرحله ذخیره شد.' });
   } catch {
     notificationStore.showNotification({ title: 'خطا', message: 'ذخیره تغییرات ناموفق بود.' });
   }
@@ -565,7 +553,7 @@ const saveQuestionModal = async () => {
     }
     questionModal.open = false;
     await loadAll();
-    notificationStore.showNotification({ title: '✅ ذخیره شد', message: 'سوال با موفقیت ذخیره شد.' });
+    notificationStore.showNotification({ title: 'ذخیره شد', message: 'سوال با موفقیت ذخیره شد.' });
   } catch (err) {
     questionModal.error = err.response?.data?.message || 'خطا در ذخیره سوال.';
   }
@@ -608,7 +596,7 @@ const saveFlashcard = async () => {
     resetFcForm();
     const res = await adminService.getFlashcards();
     flashcards.value = res.data;
-    notificationStore.showNotification({ title: '✅ ذخیره شد', message: 'فلش‌کارت ذخیره شد.' });
+    notificationStore.showNotification({ title: 'ذخیره شد', message: 'فلش‌کارت ذخیره شد.' });
   } catch (err) {
     notificationStore.showNotification({
       title: 'خطا',
@@ -633,15 +621,16 @@ const toggleRole = async (u) => {
 <style scoped>
 .admin-page {
   min-height: 100vh;
-  background: #f5f7fb;
+  background: var(--color-background-page);
   direction: rtl;
   padding-bottom: 3rem;
 }
 
 .admin-header {
-  background: linear-gradient(135deg, #4527a0, #1565c0);
+  background-color: var(--color-hero-bg);
+  border-bottom: 4px solid #0d2a42;
   color: #fff;
-  padding: 1.25rem 1.5rem;
+  padding: 1.2rem 1.5rem;
 }
 
 .header-inner {
@@ -655,8 +644,8 @@ const toggleRole = async (u) => {
 .back-btn {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.16);
   color: #fff;
   display: flex;
   align-items: center;
@@ -664,8 +653,8 @@ const toggleRole = async (u) => {
   text-decoration: none;
 }
 
-.admin-header h1 { margin: 0; font-size: 1.3rem; }
-.admin-header p { margin: 0.2rem 0 0; font-size: 0.85rem; opacity: 0.9; }
+.admin-header h1 { margin: 0; font-size: 1.25rem; color: #fff; }
+.admin-header p { margin: 0.2rem 0 0; font-size: 0.84rem; opacity: 0.9; }
 
 .admin-tabs {
   max-width: 1120px;
@@ -678,19 +667,21 @@ const toggleRole = async (u) => {
 
 .tab-btn {
   background: #fff;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 12px;
-  padding: 0.65rem 1rem;
+  padding: 0.6rem 1rem;
   font-weight: 800;
-  font-size: 0.88rem;
-  color: #4b5563;
+  font-size: 0.86rem;
+  color: var(--color-text-light);
   cursor: pointer;
   white-space: nowrap;
 }
 
 .tab-btn.active {
-  background: #4527a0;
-  border-color: #4527a0;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  border-bottom-color: var(--color-primary-shadow);
   color: #fff;
 }
 
@@ -702,22 +693,17 @@ const toggleRole = async (u) => {
 
 .card {
   background: #fff;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 16px;
   padding: 1.35rem;
   margin-bottom: 1.25rem;
 }
 
-.card h3 { margin: 0 0 1rem; color: #2c3e50; font-size: 1.05rem; }
+.card h3 { margin: 0 0 1rem; color: var(--color-text); font-size: 1.05rem; }
 
-.export-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.export-bar p { margin: 0; font-size: 0.85rem; color: #6b7280; }
+.export-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.export-bar p { margin: 0; font-size: 0.85rem; color: var(--color-text-light); }
 .export-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
 .kpi-grid {
@@ -729,7 +715,8 @@ const toggleRole = async (u) => {
 
 .kpi-card {
   background: #fff;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 16px;
   padding: 1.1rem;
   text-align: center;
@@ -737,36 +724,32 @@ const toggleRole = async (u) => {
   flex-direction: column;
   gap: 0.25rem;
 }
-.kpi-val { font-size: 1.8rem; font-weight: 900; color: #1565c0; }
-.kpi-lbl { font-size: 0.82rem; color: #6b7280; font-weight: 700; }
+.kpi-val { font-size: 1.8rem; font-weight: 900; color: var(--color-primary); }
+.kpi-lbl { font-size: 0.82rem; color: var(--color-text-light); font-weight: 700; }
 
 .domain-bars { display: flex; flex-direction: column; gap: 0.9rem; }
 .domain-meta { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.35rem; }
-.bar-track { height: 12px; background: #eceff1; border-radius: 999px; overflow: hidden; }
-.bar-fill { height: 100%; background: linear-gradient(90deg, #0288d1, #009688); border-radius: 999px; }
+.bar-track { height: 12px; background: #dfe6ec; border-radius: 999px; overflow: hidden; }
+.bar-fill { height: 100%; background-color: var(--color-primary); border-radius: 999px; }
 
 .table-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-th, td { padding: 0.7rem 0.6rem; border-bottom: 1px solid #f0f2f5; text-align: right; }
-th { background: #f8fafc; color: #4b5563; font-weight: 800; }
+th, td { padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--color-border); text-align: right; }
+th { background: var(--color-background-page); color: var(--color-text-light); font-weight: 800; }
 
 .notes-list { display: flex; flex-direction: column; gap: 0.75rem; }
-.note-item { background: #f8fafc; border-radius: 12px; padding: 0.85rem 1rem; }
-.note-item p { margin: 0.35rem 0 0; color: #374151; line-height: 1.6; }
+.note-item { background: var(--color-background-page); border-radius: 12px; padding: 0.85rem 1rem; border: 1px solid var(--color-border); }
+.note-item p { margin: 0.35rem 0 0; color: var(--color-text); line-height: 1.6; }
 
-.inline-form, .filter-row {
-  display: flex;
-  gap: 0.65rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
+.inline-form, .filter-row { display: flex; gap: 0.65rem; flex-wrap: wrap; align-items: center; }
 
 input, select, textarea {
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   border-radius: 10px;
   padding: 0.55rem 0.75rem;
   font-family: inherit;
   font-size: 0.9rem;
+  background: var(--color-background-page);
   box-sizing: border-box;
 }
 
@@ -783,7 +766,7 @@ input, select, textarea {
   gap: 0.35rem;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #374151;
+  color: var(--color-text);
 }
 
 .full-label { margin-bottom: 0.85rem; }
@@ -800,41 +783,34 @@ input, select, textarea {
 
 .id-badge, .type-pill, .pts-pill, .role-badge {
   display: inline-block;
-  padding: 0.15rem 0.55rem;
+  padding: 0.18rem 0.6rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-right: 0.4rem;
 }
-.id-badge { background: #f3f4f6; color: #6b7280; }
-.type-pill { background: #e3f2fd; color: #1565c0; }
-.pts-pill { background: #fff3e0; color: #e65100; }
-.role-badge.admin { background: #ede7f6; color: #4a148c; }
-.role-badge.student { background: #e8f5e9; color: #2e7d32; }
+.id-badge { background: var(--color-background-off); color: var(--color-text-light); }
+.type-pill { background: var(--color-secondary-light); color: var(--color-secondary-dark); }
+.pts-pill { background: var(--color-warning-light); color: var(--color-warning-dark); }
+.role-badge.admin { background: var(--color-secondary-light); color: var(--color-secondary-dark); }
+.role-badge.student { background: var(--color-primary-light); color: var(--color-primary-dark); }
 
 .row-actions { display: flex; gap: 0.45rem; }
-.btn-sm {
-  border: none;
-  border-radius: 8px;
-  padding: 0.42rem 0.75rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-.btn-save { background: #e3f2fd; color: #1565c0; }
-.btn-del { background: #ffebee; color: #c62828; }
+.btn-sm { border: none; border-radius: 8px; padding: 0.42rem 0.75rem; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
+.btn-save { background: var(--color-secondary-light); color: var(--color-secondary-dark); }
+.btn-del { background: var(--color-danger-light); color: var(--color-danger-dark); }
 
 .fc-list { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
-.fc-item { padding: 0.9rem; border: 1px solid #eef2f7; border-radius: 12px; align-items: flex-start; }
+.fc-item { padding: 0.9rem; border: 1px solid var(--color-border); border-radius: 12px; align-items: flex-start; }
 .fc-item-body { flex: 1; }
-.fc-item-body strong { display: block; margin: 0.3rem 0; color: #1f2937; }
-.fc-item-body p { margin: 0; font-size: 0.86rem; color: #4b5563; line-height: 1.6; }
+.fc-item-body strong { display: block; margin: 0.3rem 0; color: var(--color-text); }
+.fc-item-body p { margin: 0; font-size: 0.86rem; color: var(--color-text-light); line-height: 1.6; }
 .search-input { flex: 1; min-width: 220px; }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(19, 34, 48, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -851,5 +827,5 @@ input, select, textarea {
   overflow-y: auto;
 }
 .modal-actions { display: flex; gap: 0.65rem; justify-content: flex-end; }
-.err-text { color: #c62828; font-weight: 700; font-size: 0.85rem; }
+.err-text { color: var(--color-danger-dark); font-weight: 700; font-size: 0.85rem; }
 </style>

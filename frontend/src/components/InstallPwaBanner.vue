@@ -1,5 +1,4 @@
 <template>
-  <!-- 1. بنر نصب اپلیکیشن (اندروید / دسکتاپ / iOS) -->
   <transition name="slide-up">
     <div v-if="showInstallBanner" class="pwa-banner install-banner" role="region" aria-label="نصب اپلیکیشن">
       <div class="pwa-banner-content">
@@ -25,12 +24,11 @@
     </div>
   </transition>
 
-  <!-- 2. اعلان بروزرسانی نسخه جدید Service Worker -->
   <transition name="slide-up">
     <div v-if="needRefresh" class="pwa-banner update-banner" role="alert">
       <div class="pwa-banner-content">
         <div class="pwa-text">
-          <strong>نسخه جدید آماده است!</strong>
+          <strong>نسخه جدید آماده است</strong>
           <p>برای دریافت امکانات و محتوای جدید، برنامه را بروزرسانی کنید.</p>
         </div>
       </div>
@@ -62,7 +60,7 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
     if (r) {
       setInterval(() => {
         r.update();
-      }, 60 * 60 * 1000); // چک کردن آپدیت هر ۱ ساعت
+      }, 60 * 60 * 1000);
     }
   },
 });
@@ -132,13 +130,13 @@ onBeforeUnmount(() => {
   bottom: 1.25rem;
   right: 1.25rem;
   left: 1.25rem;
-  max-width: 480px;
+  max-width: 460px;
   margin: 0 auto;
   background: #ffffff;
-  border: 2px solid #e5e5e5;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 16px;
   padding: 1rem 1.2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
   z-index: 1200;
   display: flex;
   flex-direction: column;
@@ -147,8 +145,8 @@ onBeforeUnmount(() => {
 }
 
 .update-banner {
-  border-color: #0288d1;
-  background: #f0f9ff;
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
 }
 
 .pwa-banner-content {
@@ -163,21 +161,21 @@ onBeforeUnmount(() => {
   border-radius: 10px;
   object-fit: contain;
   flex-shrink: 0;
-  background: #f5f9fc;
+  background: var(--color-background-page);
   padding: 4px;
 }
 
 .pwa-text strong {
   display: block;
-  font-size: 0.98rem;
-  color: #2c3e50;
+  font-size: 0.96rem;
+  color: var(--color-text);
   margin-bottom: 0.2rem;
 }
 
 .pwa-text p {
   margin: 0;
-  font-size: 0.85rem;
-  color: #5c6b7a;
+  font-size: 0.84rem;
+  color: var(--color-text-light);
   line-height: 1.5;
 }
 
@@ -188,47 +186,41 @@ onBeforeUnmount(() => {
 }
 
 .pwa-btn {
-  border: none;
+  min-width: 0 !important;
+  border: 2px solid transparent;
+  border-bottom-width: 3px;
   border-radius: 10px;
-  padding: 0.5rem 1.1rem;
-  font-size: 0.88rem;
-  font-weight: 700;
+  padding: 0.45rem 1rem;
+  font-size: 0.86rem;
+  font-weight: 800;
   cursor: pointer;
-  transition: filter 0.15s, background-color 0.15s;
 }
 
 .pwa-btn-primary {
-  background-color: #0288d1;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  border-bottom-color: var(--color-primary-shadow);
   color: #ffffff;
 }
 
-.pwa-btn-primary:hover {
-  filter: brightness(1.08);
-}
-
 .pwa-btn-ghost {
-  background-color: #f0f2f5;
-  color: #555;
-}
-
-.pwa-btn-ghost:hover {
-  background-color: #e4e7eb;
+  background-color: var(--color-background-off);
+  border-color: var(--color-border);
+  color: var(--color-text-light);
 }
 
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .slide-up-enter-from,
 .slide-up-leave-to {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(20px);
 }
 
 @media (max-width: 850px) {
-  .pwa-banner {
-    bottom: 84px;
-  }
+  .pwa-banner { bottom: 84px; }
 }
 </style>

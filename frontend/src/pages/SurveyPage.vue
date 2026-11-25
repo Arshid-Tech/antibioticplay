@@ -15,17 +15,16 @@
     <main class="survey-container">
       <div v-if="loading" class="state-card">در حال بررسی وضعیت پرسشنامه...</div>
 
-      <!-- قبلاً ثبت شده -->
       <div v-else-if="alreadySubmitted" class="state-card success-card">
-        <div class="big-emoji">✅</div>
+        <div class="done-icon-circle">
+          <font-awesome-icon icon="fas fa-check" />
+        </div>
         <h2>پرسشنامه شما با موفقیت ثبت شده است</h2>
         <p>از همکاری ارزشمند شما در این پژوهش آموزشی سپاسگزاریم.</p>
         <router-link to="/dashboard" class="btn btn-primary">بازگشت به داشبورد</router-link>
       </div>
 
-      <!-- فرم اصلی ۳۱ سوالی -->
       <form v-else @submit.prevent="handleSubmit" class="survey-form">
-        <!-- نوار پیشرفت -->
         <div class="sticky-progress">
           <div class="progress-info">
             <span>پیشرفت تکمیل پرسشنامه</span>
@@ -36,7 +35,6 @@
           </div>
         </div>
 
-        <!-- بخش ۱: اطلاعات دموگرافیک (۴ سوال) -->
         <section class="form-section card">
           <h2>بخش اول: اطلاعات جمعیت‌شناختی</h2>
 
@@ -110,7 +108,6 @@
           </div>
         </section>
 
-        <!-- بخش ۲: ۲۷ گویه استاندارد MEEGA+ در ۴ حیطه -->
         <section
           v-for="group in meegaGroups"
           :key="group.title"
@@ -145,7 +142,6 @@
           </div>
         </section>
 
-        <!-- بخش ۳: بازخورد کیفی اختیاری -->
         <section class="form-section card">
           <h2>نظرات و پیشنهادات تکمیلی (اختیاری)</h2>
           <textarea
@@ -175,9 +171,9 @@ import surveyService from '../services/surveyService';
 import { useAuthStore } from '../stores/auth';
 import { useNotificationStore } from '../stores/notificationStore';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faCheck } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faArrowRight);
+library.add(faArrowRight, faCheck);
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -317,7 +313,7 @@ const handleSubmit = async () => {
 
     alreadySubmitted.value = true;
     notificationStore.showNotification({
-      title: '🎉 سپاس از مشارکت شما!',
+      title: 'سپاس از مشارکت شما',
       message: `پرسشنامه با موفقیت ثبت شد و +${toFa(res.data.xp_awarded || 50)} XP به امتیاز شما اضافه گردید.`,
     });
     router.push('/dashboard');
@@ -332,7 +328,7 @@ const handleSubmit = async () => {
 <style scoped>
 .survey-page {
   min-height: 100vh;
-  background: #f6f8fb;
+  background: var(--color-background-page);
   direction: rtl;
   padding-bottom: 3rem;
   overflow-x: hidden;
@@ -341,9 +337,10 @@ const handleSubmit = async () => {
 }
 
 .survey-header {
-  background: linear-gradient(135deg, #0288d1, #009688);
+  background-color: var(--color-hero-bg);
   color: #fff;
   padding: 1.1rem 1rem;
+  border-bottom: 4px solid #0d2a42;
   box-sizing: border-box;
 }
 
@@ -355,15 +352,13 @@ const handleSubmit = async () => {
   gap: 0.85rem;
 }
 
-.header-text {
-  min-width: 0;
-}
+.header-text { min-width: 0; }
 
 .back-btn {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.16);
   color: #fff;
   display: flex;
   align-items: center;
@@ -372,18 +367,8 @@ const handleSubmit = async () => {
   flex-shrink: 0;
 }
 
-.survey-header h1 {
-  margin: 0;
-  font-size: 1.15rem;
-  line-height: 1.4;
-}
-
-.survey-header p {
-  margin: 0.2rem 0 0;
-  font-size: 0.82rem;
-  opacity: 0.92;
-  line-height: 1.45;
-}
+.survey-header h1 { margin: 0; font-size: 1.15rem; line-height: 1.4; color: #fff; }
+.survey-header p { margin: 0.2rem 0 0; font-size: 0.82rem; opacity: 0.9; line-height: 1.45; }
 
 .survey-container {
   max-width: 860px;
@@ -398,11 +383,11 @@ const handleSubmit = async () => {
   top: 0;
   z-index: 15;
   background: #ffffff;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 14px;
   padding: 0.8rem 1rem;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   box-sizing: border-box;
 }
 
@@ -410,26 +395,27 @@ const handleSubmit = async () => {
   display: flex;
   justify-content: space-between;
   font-size: 0.86rem;
-  color: #4b5563;
+  color: var(--color-text-light);
   margin-bottom: 0.45rem;
 }
 
 .progress-track {
-  height: 9px;
-  background: #e5e7eb;
+  height: 10px;
+  background: #dfe6ec;
   border-radius: 999px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0288d1, #009688);
+  background-color: var(--color-primary);
   transition: width 0.3s ease;
 }
 
 .card {
   background: #fff;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 18px;
   padding: 1.15rem;
   margin-bottom: 1rem;
@@ -437,104 +423,69 @@ const handleSubmit = async () => {
   box-sizing: border-box;
 }
 
-.form-section h2 {
-  margin: 0 0 0.4rem;
-  font-size: 1.05rem;
-  color: #0277bd;
-}
+.form-section h2 { margin: 0 0 0.4rem; font-size: 1.05rem; color: var(--color-primary-dark); }
+.section-hint { margin: 0 0 1rem; font-size: 0.82rem; color: var(--color-text-light); line-height: 1.5; }
 
-.section-hint {
-  margin: 0 0 1rem;
-  font-size: 0.82rem;
-  color: #6b7280;
-  line-height: 1.5;
-}
-
-.demo-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
-  margin-bottom: 0.85rem;
-}
-
-.field-group {
-  margin-bottom: 0.9rem;
-}
-
-.field-group label {
-  display: block;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #2c3e50;
-  margin-bottom: 0.45rem;
-  line-height: 1.5;
-}
-
+.demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem; }
+.field-group { margin-bottom: 0.9rem; }
+.field-group label { display: block; font-weight: 800; font-size: 0.9rem; color: var(--color-text); margin-bottom: 0.45rem; line-height: 1.5; }
 .field-group input {
   width: 100%;
   padding: 0.65rem 0.85rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   border-radius: 12px;
   font-size: 0.95rem;
+  background: var(--color-background-page);
   box-sizing: border-box;
 }
 
-.choice-row {
-  display: flex;
-  gap: 0.45rem;
-}
-
-.choice-row.wrap {
-  flex-wrap: wrap;
-}
+.choice-row { display: flex; gap: 0.45rem; }
+.choice-row.wrap { flex-wrap: wrap; }
 
 .choice-pill {
   min-width: 0 !important;
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: #ffffff;
+  border: 2px solid var(--color-border);
   border-bottom-width: 3px;
   border-radius: 10px;
   padding: 0.5rem 0.8rem;
   font-size: 0.84rem;
   font-weight: 700;
-  color: #4b5563;
+  color: var(--color-text-light);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .choice-pill.active {
-  background: #e1f5fe;
-  border-color: #0288d1;
-  color: #01579b;
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .likert-row {
   padding: 0.85rem 0.75rem;
   border-radius: 12px;
-  border: 1px solid #f0f2f5;
+  border: 1px solid var(--color-border);
   margin-bottom: 0.75rem;
-  background: #fafbfc;
+  background: var(--color-background-page);
   width: 100%;
   box-sizing: border-box;
 }
 
 .likert-row.unanswered {
-  border-color: #ef9a9a;
-  background: #fff5f5;
+  border-color: var(--color-danger);
+  background: var(--color-danger-light);
 }
 
 .likert-question {
   margin: 0 0 0.7rem;
   font-size: 0.92rem;
-  color: #1f2937;
+  color: var(--color-text);
   font-weight: 700;
   line-height: 1.65;
 }
 
-.q-num {
-  color: #0288d1;
-  margin-left: 0.25rem;
-}
+.q-num { color: var(--color-primary); margin-left: 0.25rem; }
 
 .likert-options {
   display: grid;
@@ -547,7 +498,7 @@ const handleSubmit = async () => {
   min-width: 0 !important;
   width: 100%;
   background: #fff;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   border-bottom-width: 3px;
   border-radius: 10px;
   padding: 0.45rem 0.15rem;
@@ -557,49 +508,39 @@ const handleSubmit = async () => {
   align-items: center;
   justify-content: center;
   gap: 0.15rem;
-  color: #4b5563;
+  color: var(--color-text-light);
   transition: all 0.15s;
   box-sizing: border-box;
 }
 
-.likert-btn:hover {
-  border-color: #90caf9;
-}
+.likert-btn:hover { border-color: var(--color-primary); }
 
 .likert-btn.selected {
-  background: #0288d1;
-  border-color: #0288d1;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  border-bottom-color: var(--color-primary-shadow);
   color: #fff;
 }
 
-.likert-num {
-  font-size: 1rem;
-  font-weight: 900;
-  line-height: 1.2;
-}
-
-.likert-label {
-  font-size: 0.68rem;
-  text-align: center;
-  line-height: 1.25;
-  word-break: break-word;
-}
+.likert-num { font-size: 1rem; font-weight: 900; line-height: 1.2; }
+.likert-label { font-size: 0.68rem; text-align: center; line-height: 1.25; word-break: break-word; }
 
 .feedback-textarea {
   width: 100%;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   border-radius: 12px;
   padding: 0.8rem;
   font-family: inherit;
   font-size: 0.92rem;
+  background: var(--color-background-page);
   box-sizing: border-box;
   resize: vertical;
 }
 
 .error-banner {
-  background: #ffebee;
-  color: #c62828;
-  border: 1px solid #ef9a9a;
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  border: 2px solid #f3b5b5;
   padding: 0.85rem 1rem;
   border-radius: 12px;
   margin-bottom: 1rem;
@@ -607,52 +548,38 @@ const handleSubmit = async () => {
   font-size: 0.88rem;
 }
 
-.submit-row {
-  display: flex;
-  justify-content: center;
-}
-
-.submit-btn {
-  width: 100%;
-  max-width: 380px;
-  padding: 0.95rem 1.4rem;
-  font-size: 1rem;
-}
+.submit-row { display: flex; justify-content: center; }
+.submit-btn { width: 100%; max-width: 380px; padding: 0.95rem 1.4rem; font-size: 1rem; }
 
 .state-card {
   background: #fff;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 4px;
   border-radius: 20px;
   padding: 2.2rem 1.25rem;
   text-align: center;
 }
 
-.big-emoji {
-  font-size: 3.2rem;
-  margin-bottom: 0.5rem;
+.done-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.9rem;
 }
 
 @media (max-width: 650px) {
-  .demo-grid {
-    grid-template-columns: 1fr;
-  }
-  .card {
-    padding: 0.95rem 0.8rem;
-  }
-  .likert-row {
-    padding: 0.75rem 0.55rem;
-  }
-  .likert-options {
-    gap: 0.25rem;
-  }
-  .likert-btn {
-    padding: 0.4rem 0.1rem;
-  }
-  .likert-num {
-    font-size: 0.95rem;
-  }
-  .likert-label {
-    font-size: 0.6rem;
-  }
+  .demo-grid { grid-template-columns: 1fr; }
+  .card { padding: 0.95rem 0.8rem; }
+  .likert-row { padding: 0.75rem 0.55rem; }
+  .likert-options { gap: 0.25rem; }
+  .likert-btn { padding: 0.4rem 0.1rem; }
+  .likert-num { font-size: 0.95rem; }
+  .likert-label { font-size: 0.6rem; }
 }
 </style>

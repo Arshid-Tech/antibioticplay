@@ -9,7 +9,7 @@
       </div>
 
       <template v-else-if="duel">
-        <span class="duel-badge">⚔️ دوئل هم‌کلاسی‌ها</span>
+        <span class="duel-badge">دوئل هم‌کلاسی‌ها</span>
         <h1 class="duel-title">{{ duel.quiz_title }}</h1>
 
         <div class="versus-row">
@@ -20,7 +20,7 @@
               alt="Challenger"
             />
             <strong>{{ duel.challenger.full_name }}</strong>
-            <span class="score-tag">{{ duel.challenger.score }} امتیاز</span>
+            <span class="score-tag">{{ toFa(duel.challenger.score) }} امتیاز</span>
           </div>
 
           <div class="vs-circle">VS</div>
@@ -33,7 +33,7 @@
                 alt="Opponent"
               />
               <strong>{{ duel.opponent.full_name }}</strong>
-              <span class="score-tag">{{ duel.opponent.score }} امتیاز</span>
+              <span class="score-tag">{{ toFa(duel.opponent.score) }} امتیاز</span>
             </template>
             <template v-else>
               <div class="duel-avatar placeholder">؟</div>
@@ -44,11 +44,11 @@
         </div>
 
         <div v-if="duel.status === 'completed'" class="result-banner">
-          <h2 v-if="duel.winner === 'tie'">🤝 مسابقه مساوی شد!</h2>
+          <h2 v-if="duel.winner === 'tie'">مسابقه مساوی شد!</h2>
           <h2 v-else-if="duel.winner === 'challenger'">
-            🏆 برنده: {{ duel.challenger.full_name }}
+            برنده: {{ duel.challenger.full_name }}
           </h2>
-          <h2 v-else>🏆 برنده: {{ duel.opponent?.full_name }}</h2>
+          <h2 v-else>برنده: {{ duel.opponent?.full_name }}</h2>
           <p>برنده دوئل +۳۰ XP پاداش دریافت کرد.</p>
           <router-link to="/dashboard" class="btn btn-primary">بازگشت به داشبورد</router-link>
         </div>
@@ -62,7 +62,7 @@
             <router-link to="/dashboard" class="btn btn-outline">داشبورد</router-link>
           </div>
           <div v-else class="accept-row">
-            <p>فکر می‌کنی می‌تونی امتیاز <strong>{{ duel.challenger.score }}</strong> رو بشکنی؟</p>
+            <p>فکر می‌کنی می‌تونی امتیاز <strong>{{ toFa(duel.challenger.score) }}</strong> رو بشکنی؟</p>
             <button class="btn btn-primary start-duel-btn" @click="acceptDuel">
               قبول چالش و شروع آزمون
             </button>
@@ -89,6 +89,11 @@ const loading = ref(true);
 const error = ref('');
 const duel = ref(null);
 
+const toFa = (val) => {
+  if (val === null || val === undefined) return '';
+  return String(val).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+};
+
 const isSelfChallenger = computed(() => {
   return duel.value && duel.value.challenger?.username === authStore.username;
 });
@@ -108,7 +113,7 @@ const acceptDuel = () => {
   router.push({
     name: 'Quiz',
     params: { id: duel.value.quiz_id },
-    query: { duelId: duel.value.id, theme: '#5e35b1' },
+    query: { duelId: duel.value.id, theme: '#1d5c8c' },
   });
 };
 
@@ -116,7 +121,7 @@ const copyLink = async () => {
   try {
     await navigator.clipboard.writeText(window.location.href);
     notificationStore.showNotification({
-      title: 'لینک کپی شد!',
+      title: 'لینک کپی شد',
       message: 'لینک دوئل را برای هم‌کلاسی خود ارسال کنید تا امتیازتان مقایسه شود.',
     });
   } catch {
@@ -131,7 +136,7 @@ const copyLink = async () => {
 <style scoped>
 .duel-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #ede7f6, #e3f2fd);
+  background-color: var(--color-background-page);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,29 +147,29 @@ const copyLink = async () => {
 .duel-card {
   width: 100%;
   max-width: 560px;
-  background: #fff;
-  border: 2px solid #e5e5e5;
-  border-radius: 24px;
+  background: #ffffff;
+  border: 2px solid var(--color-border);
+  border-bottom-width: 5px;
+  border-radius: 22px;
   padding: 2rem;
   text-align: center;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
 }
 
 .duel-badge {
   display: inline-block;
-  background: #ede7f6;
-  color: #5e35b1;
+  background: var(--color-secondary-light);
+  color: var(--color-secondary-dark);
   padding: 0.3rem 0.9rem;
   border-radius: 999px;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   margin-bottom: 0.75rem;
 }
 
 .duel-title {
   margin: 0 0 1.75rem;
-  font-size: 1.4rem;
-  color: #2c3e50;
+  font-size: 1.35rem;
+  color: var(--color-text);
 }
 
 .versus-row {
@@ -188,8 +193,8 @@ const copyLink = async () => {
   height: 82px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #5e35b1;
-  background: #f5f5f5;
+  border: 3px solid var(--color-secondary);
+  background: var(--color-background-off);
 }
 
 .duel-avatar.placeholder {
@@ -198,13 +203,13 @@ const copyLink = async () => {
   justify-content: center;
   font-size: 2rem;
   font-weight: 900;
-  color: #9e9e9e;
+  color: #94a3b8;
   border-style: dashed;
 }
 
 .score-tag {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   font-size: 0.85rem;
@@ -212,15 +217,15 @@ const copyLink = async () => {
 }
 
 .score-tag.pending {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--color-background-off);
+  color: var(--color-text-light);
 }
 
 .vs-circle {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #5e35b1;
+  background: var(--color-hero-bg);
   color: #fff;
   font-weight: 900;
   display: flex;
@@ -230,35 +235,16 @@ const copyLink = async () => {
 }
 
 .result-banner {
-  background: #f3e5f5;
+  background: var(--color-primary-light);
+  border: 2px solid #99d5cc;
   border-radius: 16px;
   padding: 1.25rem;
 }
 
-.result-banner h2 {
-  margin: 0 0 0.4rem;
-  color: #4a148c;
-}
+.result-banner h2 { margin: 0 0 0.4rem; color: var(--color-primary-dark); }
+.result-banner p { margin: 0 0 1rem; color: var(--color-text); }
 
-.result-banner p {
-  margin: 0 0 1rem;
-  color: #555;
-}
-
-.share-row {
-  display: flex;
-  justify-content: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.start-duel-btn {
-  padding: 0.9rem 1.8rem;
-  font-size: 1.05rem;
-}
-
-.self-note {
-  color: #555;
-  margin-bottom: 1rem;
-}
+.share-row { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+.start-duel-btn { padding: 0.9rem 1.8rem; font-size: 1rem; }
+.self-note { color: var(--color-text-light); margin-bottom: 1rem; }
 </style>

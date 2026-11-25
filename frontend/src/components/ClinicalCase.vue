@@ -1,9 +1,8 @@
 <template>
   <div class="clinical-case-wrapper">
-    <!-- پرونده بیمار -->
     <div v-if="question.patient" class="patient-chart">
       <div class="chart-header">
-        <span class="chart-badge">🩺 پرونده بیمارنما</span>
+        <span class="chart-badge">پرونده بیمارنما</span>
         <span v-if="question.patient.setting" class="setting-badge">
           {{ question.patient.setting }}
         </span>
@@ -25,7 +24,6 @@
 
     <p class="case-instruction">{{ question.instruction }}</p>
 
-    <!-- گزینه‌های تصمیم بالینی -->
     <div class="case-options">
       <button
         v-for="opt in normalizedOptions"
@@ -110,12 +108,11 @@ const getOptionClass = (optId) => {
 
 .patient-chart {
   background: #ffffff;
-  border: 2px solid #cfe8fc;
-  border-right: 6px solid #0288d1;
+  border: 2px solid var(--color-border);
+  border-right: 6px solid var(--color-secondary);
   border-radius: 16px;
   padding: 1.2rem 1.35rem;
   margin-bottom: 1.25rem;
-  box-shadow: 0 4px 14px rgba(2, 136, 209, 0.08);
 }
 
 .chart-header {
@@ -128,18 +125,18 @@ const getOptionClass = (optId) => {
 }
 
 .chart-badge {
-  font-weight: 800;
-  color: #0277bd;
+  font-weight: 900;
+  color: var(--color-secondary-dark);
   font-size: 0.95rem;
 }
 
 .setting-badge {
-  background: #e1f5fe;
-  color: #0277bd;
-  padding: 0.2rem 0.7rem;
+  background: var(--color-secondary-light);
+  color: var(--color-secondary-dark);
+  padding: 0.22rem 0.75rem;
   border-radius: 999px;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .patient-meta {
@@ -147,16 +144,17 @@ const getOptionClass = (optId) => {
   gap: 1.5rem;
   flex-wrap: wrap;
   font-size: 0.9rem;
-  color: #374151;
+  color: var(--color-text);
   margin-bottom: 0.65rem;
 }
 
 .complaint-box {
-  background: #f8fafc;
+  background: var(--color-background-page);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 0.65rem 0.85rem;
   font-size: 0.94rem;
-  color: #1f2937;
+  color: var(--color-text);
   margin-bottom: 0.65rem;
 }
 
@@ -164,13 +162,13 @@ const getOptionClass = (optId) => {
   margin: 0;
   font-size: 0.94rem;
   line-height: 1.75;
-  color: #4b5563;
+  color: var(--color-text-light);
 }
 
 .case-instruction {
   font-size: 1.05rem;
   font-weight: 800;
-  color: #2c3e50;
+  color: var(--color-text);
   margin: 0 0 1rem;
 }
 
@@ -183,68 +181,72 @@ const getOptionClass = (optId) => {
 .case-option-card {
   width: 100%;
   background: #ffffff;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   border-bottom-width: 4px;
   border-radius: 14px;
   padding: 1rem 1.15rem;
   text-align: right;
   display: flex;
   align-items: flex-start;
+  justify-content: flex-start;
   gap: 0.75rem;
   cursor: pointer;
   transition: all 0.15s ease;
-  color: #374151;
+  color: var(--color-text);
   font-size: 0.95rem;
   line-height: 1.65;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .case-option-card:hover:not(:disabled) {
-  border-color: #90caf9;
-  background: #f8fbff;
+  border-color: var(--color-secondary);
+  background: #f8fbfd;
 }
 
 .radio-dot {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid #cbd5e1;
+  border: 2px solid var(--color-border-strong);
   margin-top: 4px;
   flex-shrink: 0;
   transition: all 0.15s;
 }
 
 .case-option-card.selected {
-  border-color: #0288d1;
-  background: #e1f5fe;
-  color: #01579b;
+  border-color: var(--color-secondary);
+  border-bottom-color: var(--color-secondary-shadow);
+  background: var(--color-secondary-light);
+  color: var(--color-secondary-dark);
 }
 
 .case-option-card.selected .radio-dot {
-  border-color: #0288d1;
-  background: #0288d1;
+  border-color: var(--color-secondary);
+  background: var(--color-secondary);
 }
 
 .case-option-card.correct {
-  border-color: #43a047 !important;
-  background: #e8f5e9 !important;
-  color: #1b5e20 !important;
+  border-color: var(--color-primary) !important;
+  border-bottom-color: var(--color-primary-shadow) !important;
+  background: var(--color-primary-light) !important;
+  color: var(--color-primary-dark) !important;
 }
 
 .case-option-card.correct .radio-dot {
-  border-color: #43a047;
-  background: #43a047;
+  border-color: var(--color-primary);
+  background: var(--color-primary);
 }
 
 .case-option-card.incorrect {
-  border-color: #e53935 !important;
-  background: #ffebee !important;
-  color: #b71c1c !important;
+  border-color: var(--color-danger) !important;
+  border-bottom-color: var(--color-danger-shadow) !important;
+  background: var(--color-danger-light) !important;
+  color: var(--color-danger-dark) !important;
 }
 
 .case-option-card.incorrect .radio-dot {
-  border-color: #e53935;
-  background: #e53935;
+  border-color: var(--color-danger);
+  background: var(--color-danger);
 }
 
 .case-option-card.disabled {
