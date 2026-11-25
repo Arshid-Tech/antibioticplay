@@ -1,4 +1,5 @@
 import os
+import re
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -16,13 +17,24 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    cors_origins = os.environ.get(
+    cors_origins_env = os.environ.get(
         'FRONTEND_URL',
         'http://localhost:5173,http://localhost:3000'
     )
+    allowed_origins = [
+        o.strip().rstrip('/')
+        for o in cors_origins_env.split(',')
+        if o.strip()
+    ]
+    # Always allow Render frontend preview/suffixed URLs and custom domain
+    allowed_origins.extend([
+        'https://antibioticplay.arshid.tech',
+        re.compile(r'^https://antibioticplay-frontend.*\.onrender\.com$'),
+    ])
+
     CORS(app, resources={
         r"/api/*": {
-            "origins": [o.strip() for o in cors_origins.split(',') if o.strip()],
+            "origins": allowed_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True,
