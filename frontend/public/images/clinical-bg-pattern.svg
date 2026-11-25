@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220" fill="none">
+  <!-- Subtle clinical line-art tile: capsule, beta-lactam/benzene ring, petri dish, clinical cross, tablet -->
+  <g stroke="#0f766e" stroke-opacity="0.075" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Capsule (top-left) -->
+    <g transform="translate(38 36) rotate(-32)">
+      <rect x="-15" y="-6.5" width="30" height="13" rx="6.5"/>
+      <line x1="0" y1="-6.5" x2="0" y2="6.5"/>
+    </g>
+
+    <!-- Clinical Plus / Pharmacy Cross (top-right) -->
+    <g transform="translate(170 42)">
+      <path d="M-3 -9 H3 V-3 H9 V3 H3 V9 H-3 V3 H-9 V-3 H-3 Z"/>
+    </g>
+
+    <!-- Molecular Hexagon + Beta-Lactam Square (center) -->
+    <g transform="translate(110 112)">
+      <polygon points="0,-16 14,-8 14,8 0,16 -14,8 -14,-8"/>
+      <rect x="14" y="-8" width="14" height="16" rx="1"/>
+      <line x1="-14" y1="-8" x2="-22" y2="-13"/>
+    </g>
+
+    <!-- Petri Dish with micro-colonies (bottom-left) -->
+    <g transform="translate(46 168)">
+      <circle cx="0" cy="0" r="15"/>
+      <circle cx="0" cy="0" r="11" stroke-dasharray="3 3"/>
+      <circle cx="-4" cy="-3" r="1.5" fill="#1d5c8c" fill-opacity="0.09" stroke="none"/>
+      <circle cx="4" cy="2" r="1.8" fill="#0f766e" fill-opacity="0.09" stroke="none"/>
+      <circle cx="-1" cy="5" r="1.2" fill="#1d5c8c" fill-opacity="0.09" stroke="none"/>
+    </g>
+
+    <!-- Scored Tablet (bottom-right) -->
+    <g transform="translate(174 170) rotate(25)">
+      <circle cx="0" cy="0" r="10"/>
+      <line x1="-8" y1="0" x2="8" y2="0"/>
+    </g>
+  </g>
+
+  <!-- Minimal accent dots -->
+  <g fill="#1d5c8c" fill-opacity="0.06">
+    <circle cx="105" cy="34" r="2"/>
+    <circle cx="24" cy="108" r="2"/>
+    <circle cx="192" cy="112" r="2"/>
+    <circle cx="116" cy="192" r="2"/>
+  </g>
+</svg>
