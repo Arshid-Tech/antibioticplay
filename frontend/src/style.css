@@ -83,6 +83,29 @@ body {
   background-size: 220px 220px !important;
 }
 
+/* Fix multi-line highlighter on HomePage hero title so it hugs wrapped text cleanly */
+.hero-title .highlight-text {
+  display: inline !important;
+  position: relative;
+  color: var(--color-primary) !important;
+  background-image: linear-gradient(
+    transparent 62%,
+    rgba(15, 118, 110, 0.16) 62%,
+    rgba(15, 118, 110, 0.16) 90%,
+    transparent 90%
+  ) !important;
+  padding: 0 0.2rem !important;
+  border-radius: 6px;
+  box-decoration-break: clone !important;
+  -webkit-box-decoration-break: clone !important;
+}
+
+.hero-title .highlight-text::after,
+.hero-title .highlight-text::before {
+  display: none !important;
+  content: none !important;
+}
+
 /* --- Global Drag & Select Prevention (App-Like Feel) --- */
 img, a, button, .logo-container, .stat-item {
   -webkit-user-drag: none;
